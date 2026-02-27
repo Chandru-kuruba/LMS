@@ -2893,7 +2893,9 @@ async def admin_delete_cms_section(slug: str, current_user: dict = Depends(get_a
 @api_router.get("/public/cms/{slug}")
 async def get_public_cms_section(slug: str):
     """Get CMS section by slug for public consumption"""
+    logger.info(f"Fetching CMS for slug: {slug}")
     cms = await db.cms.find_one({"slug": slug}, {"_id": 0})
+    logger.info(f"CMS result: {cms is not None}, has content: {'content' in cms if cms else False}")
     if not cms:
         # Return sensible defaults
         defaults = {
