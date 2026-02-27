@@ -48,7 +48,18 @@ export default function AdminUserPerformancePage() {
                 })
             ]);
             setUserData(userRes.data);
-            setPerformance(perfRes.data);
+            // Handle nested performance structure from API
+            const perfData = perfRes.data;
+            setPerformance({
+                total_purchases: perfData.performance?.total_purchases || 0,
+                total_spent: perfData.performance?.total_spent || 0,
+                courses_enrolled: perfData.performance?.courses_enrolled || 0,
+                course_progress: perfData.performance?.course_progress || [],
+                referral_earnings: perfData.performance?.referral_stats?.earnings_history || [],
+                total_referral_earnings: perfData.performance?.referral_stats?.total_earnings || 0,
+                referred_users_count: perfData.performance?.referral_stats?.users_referred || 0,
+                wallet_balance: perfData.performance?.wallet_balance || 0
+            });
         } catch (error) {
             console.error("Failed to fetch user data:", error);
             toast.error("Failed to load user data");
