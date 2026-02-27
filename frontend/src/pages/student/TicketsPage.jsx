@@ -118,6 +118,21 @@ export default function TicketsPage() {
         }
     };
 
+    const handleCloseTicket = async () => {
+        try {
+            await axios.post(
+                `${API}/tickets/${selectedTicket.id}/close`,
+                null,
+                { headers: { Authorization: `Bearer ${accessToken}` } }
+            );
+            toast.success("Ticket closed successfully!");
+            setSelectedTicket({ ...selectedTicket, status: "closed" });
+            fetchTickets();
+        } catch (error) {
+            toast.error("Failed to close ticket");
+        }
+    };
+
     const getStatusIcon = (status) => {
         switch (status) {
             case "open":
