@@ -82,7 +82,15 @@ export default function ProfilePage() {
             );
             toast.success("Profile image uploaded!");
             
-            // Refresh user data to get new image URL
+            // Refresh profile image
+            const imgResponse = await axios.get(`${API}/user/profile-image`, {
+                headers: { Authorization: `Bearer ${accessToken}` }
+            });
+            if (imgResponse.data.image_url) {
+                setProfileImageUrl(imgResponse.data.image_url);
+            }
+            
+            // Refresh user data
             await fetchUser();
         } catch (error) {
             toast.error(error.response?.data?.detail || "Failed to upload image");
