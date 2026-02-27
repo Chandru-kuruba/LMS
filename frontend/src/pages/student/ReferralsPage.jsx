@@ -11,11 +11,23 @@ import {
     TrendingUp,
     Clock,
     CheckCircle,
-    ExternalLink
+    ExternalLink,
+    ArrowDownToLine,
+    XCircle,
+    AlertCircle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog";
 import { useAuthStore } from "@/store/authStore";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -23,10 +35,16 @@ const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 export default function ReferralsPage() {
     const { user, accessToken } = useAuthStore();
     const [stats, setStats] = useState(null);
+    const [withdrawals, setWithdrawals] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [isWithdrawing, setIsWithdrawing] = useState(false);
+    const [showWithdrawDialog, setShowWithdrawDialog] = useState(false);
+    const [withdrawAmount, setWithdrawAmount] = useState("");
+    const [bankDetails, setBankDetails] = useState("");
 
     useEffect(() => {
         fetchReferralStats();
+        fetchWithdrawals();
     }, [accessToken]);
 
     const fetchReferralStats = async () => {
@@ -40,6 +58,52 @@ export default function ReferralsPage() {
             toast.error("Failed to load referral data");
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    const fetchWithdrawals = async () => {
+        try {
+            const response = await axios.get(`${API}/referrals/withdrawals`, {
+                headers: { Authorization: `Bearer ${accessToken}` }
+            });
+            setWithdrawals(response.data.withdrawals || []);
+        } catch (error) {
+            console.error("Failed to fetch withdrawals:", error);
+        }
+    };
+
+    const handleWithdrawRequest = async () => {
+        const amount = parseFloat(withdrawAmount);
+        if (isNaN(amount) || amount < 10) {
+            toast.error("Minimum withdrawal amount is $10");
+            return;
+        }
+        if (amount > (stats?.wallet_balance || 0)) {
+            toast.error("Insufficient wallet balance");
+            return;
+        }
+        if (!bankDetails.trim()) {
+            toast.error("Please provide bank/payment details");
+            return;
+        }
+
+        setIsWithdrawing(true);
+        try {
+            await axios.post(
+                `${API}/referrals/withdraw`,
+                { amount, bank_details: bankDetails },
+                { headers: { Authorization: `Bearer ${accessToken}` } }
+            );
+            toast.success("Withdrawal request submitted!");
+            setShowWithdrawDialog(false);
+            setWithdrawAmount("");
+            setBankDetails("");
+            fetchReferralStats();
+            fetchWithdrawals();
+        } catch (error) {
+            toast.error(error.response?.data?.detail || "Failed to submit withdrawal request");
+        } finally {
+            setIsWithdrawing(false);
         }
     };
 
