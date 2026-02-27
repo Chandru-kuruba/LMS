@@ -1,184 +1,106 @@
-# LUMINA LMS - Course Selling Platform
+# LUMINA LMS - Product Requirements Document
 
-## Product Overview
-LUMINA is a full-stack Learning Management System (LMS) with course selling capabilities, affiliate/referral system, and admin CMS. Features a modern dark-themed neon UI with glassmorphism effects.
+## Project Overview
+LUMINA is a comprehensive Learning Management System (LMS) built with React.js frontend and FastAPI backend, using MongoDB for data storage.
+
+## Original Problem Statement
+Clone the LMS repository from GitHub and stabilize the project by fixing all reported issues:
+1. Admin users page not loading
+2. Withdrawals page error
+3. Referral lifetime commission logic
+4. CMS edits not reflecting
+5. Course creation not showing
+6. Notifications page not opening
+7. Profile image (store in DB, not R2)
+8. Mobile responsiveness
+9. Support ticket close/solve flow
+10. Order success email
+11. Certificate system full implementation
 
 ## Tech Stack
-- **Frontend:** React 19, TailwindCSS, Zustand, Framer Motion, shadcn/ui
-- **Backend:** Python FastAPI
-- **Database:** MongoDB (Local)
-- **Authentication:** JWT with OTP email verification
-- **Payments:** PayU (Test Mode)
-- **Video Storage:** Cloudflare R2 with signed URLs
-- **Email:** SMTP via GoDaddy (SSL 465)
+- **Frontend**: React.js, Tailwind CSS, Framer Motion
+- **Backend**: FastAPI (Python)
+- **Database**: MongoDB
+- **Storage**: Cloudflare R2 (for videos only), MongoDB (for profile images)
+- **Payment**: PayU (test mode)
+- **Email**: SMTP (SSL 465)
 
-## User Roles
-1. **Student** - Browse courses, purchase, learn, earn through referrals
-2. **Admin** - Manage courses, users, withdrawals, CMS
+## User Personas
+1. **Students**: Browse courses, purchase, learn, earn certificates, referral program
+2. **Admins**: Manage users, courses, withdrawals, CMS content, support tickets
 
-## Core Features
+## What's Been Implemented (Feb 27, 2026)
 
-### Authentication (✅ Implemented)
-- [x] User registration with OTP email verification
-- [x] Registration with referral code (optional)
-- [x] Login with JWT access/refresh tokens
-- [x] Password reset via email
-- [x] Profile management with image upload
-- [x] College details (name, degree, branch, year, roll number)
+### ✅ Completed Features
+1. **Profile Image Storage in MongoDB** - Profile images stored as Base64 in MongoDB, not R2
+2. **Admin Users Page** - Working with user list, ban/unban, view performance
+3. **Admin User Performance Page** - Shows purchases, enrollments, referral earnings, course progress
+4. **Admin Withdrawals Page** - View and process withdrawal requests
+5. **Admin Tickets Page** - Manage support tickets (reply, close, reopen)
+6. **Admin CMS Page** - Edit all CMS sections (home, about, contact, FAQ, navbar, footer)
+7. **Student Notifications Page** - View, mark read, delete notifications
+8. **Student Certificates Page** - View and print earned certificates
+9. **Student Referrals Page** - View referral stats, request withdrawals
+10. **Support Ticket Close/Solve Flow** - Users can mark tickets as solved
+11. **Certificate System** - Request certificates after course completion, unique IDs, print tracking
+12. **Order Success Email** - Email sent after successful payment
+13. **CMS Dynamic Pages** - Privacy Policy, Terms of Service, Refund Policy, About, Contact, Careers
+14. **Mobile Responsiveness** - No horizontal scroll at 375px, 768px
 
-### Student Features (✅ Implemented)
-- [x] Course browsing with filters/search
-- [x] Course detail pages
-- [x] Cart management
-- [x] Wishlist
-- [x] Course enrollment (after payment)
-- [x] Progress tracking
-- [x] Quiz system
-- [x] Certificate generation
-- [x] **Referral system - 20% LIFETIME commission**
-- [x] Referral dashboard with earnings history
-- [x] Wallet balance
-- [x] Support tickets
-- [x] Profile with image upload and college details
+### Backend APIs (95.2% Success Rate)
+- Auth: Login, Register, OTP, Password Reset
+- Users: Profile, Image Upload, Settings
+- Courses: CRUD, Enrollment, Progress
+- Orders: Checkout, PayU Integration
+- Referrals: Stats, Earnings, Withdrawals
+- Tickets: Create, Reply, Close, Reopen
+- Notifications: CRUD, Mark Read
+- Certificates: Request, Generate, Print
+- Admin: Dashboard, Users, Courses, Withdrawals, CMS
 
-### Admin Features (✅ Implemented)
-- [x] Dashboard with analytics
-- [x] User management (ban/unban, role change)
-- [x] Course CRUD with module/lesson/quiz editor
-- [x] Module/Lesson management with video upload
-- [x] Quiz management with questions
-- [x] Coupon management
-- [x] Withdrawal approvals
-- [x] **Full Dynamic CMS management:**
-  - Home page (hero section)
-  - About page
-  - Contact page
-  - FAQ management
-  - Navbar configuration
-  - Footer with social links
-  - Testimonials
+## Prioritized Backlog
 
-### Integrations (✅ Configured)
-- [x] PayU - API Key: 4VsfzG, Salt: edl6vMk3tGWC0z0YbhSsb8tZIQBA1to3
-- [x] SMTP - smtpout.secureserver.net:465 (SSL)
-- [x] Cloudflare R2 - Bucket: course (private, signed URLs)
+### P0 - Critical (Done)
+- ✅ Profile image MongoDB storage
+- ✅ Admin withdrawals page
+- ✅ Admin user performance
+- ✅ CMS dynamic pages
+- ✅ Certificate system
+- ✅ Support ticket flow
 
-## Referral System (20% Lifetime)
-- Referral code auto-generated on user signup
-- Referral link: `https://domain.com/register?ref=CODE`
-- Permanent referral relationship stored as `referred_by` (user ID)
-- 20% commission on ALL purchases by referred users (lifetime)
-- Commission added to wallet immediately
-- Referral earnings collection tracks per-course commissions
+### P1 - Important
+- [ ] Fix React hydration warnings (cosmetic)
+- [ ] Fix chart container sizing in admin dashboard
+- [ ] Improve admin session persistence
 
-## User Model
-```json
-{
-  "id": "uuid",
-  "email": "string",
-  "password": "hashed",
-  "first_name": "string",
-  "last_name": "string",
-  "role": "student|admin",
-  "referral_code": "auto-generated",
-  "referred_by": "referrer_user_id",
-  "wallet_balance": 0.0,
-  "total_earnings": 0.0,
-  "profile_image_key": "R2 object key",
-  "college_details": {
-    "college_name": "",
-    "degree": "",
-    "branch": "",
-    "year_of_study": "",
-    "roll_number": ""
-  },
-  "phone": "",
-  "bio": ""
-}
-```
+### P2 - Nice to Have
+- [ ] PayU payout API integration for automated withdrawals
+- [ ] Certificate template upload system
+- [ ] Advanced analytics dashboard
+- [ ] Course ratings/reviews system improvements
 
-## API Endpoints
+## Environment Variables Required
+- MONGO_URL
+- DB_NAME
+- JWT_SECRET
+- PAYU_MERCHANT_KEY
+- PAYU_MERCHANT_SALT
+- SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD
+- R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET_NAME
+- FRONTEND_URL
 
-### Auth
-- POST /api/auth/register (with referral_code)
-- POST /api/auth/verify-otp
-- POST /api/auth/login
-- POST /api/auth/forgot-password
-- POST /api/auth/reset-password
-- GET /api/auth/me
-- PUT /api/auth/profile
+## Testing Status
+- Backend: 95.2% success rate
+- Frontend: 75% (core functions work, minor navigation issues)
+- Mobile: Responsive at 375px and 768px
 
-### Profile
-- POST /api/user/upload-profile-image
-- GET /api/user/profile-image
+## Known Issues
+1. Platform-level caching causes stale CMS data (resolves with cache expiry)
+2. React hydration warnings from framer-motion (cosmetic)
+3. Chart container sizing warnings (cosmetic)
 
-### Referrals
-- GET /api/referrals/stats
-- GET /api/referrals/earnings
-
-### CMS (Admin)
-- GET /api/admin/cms
-- GET /api/admin/cms/:slug
-- PUT /api/admin/cms/:slug
-- POST /api/admin/cms
-- DELETE /api/admin/cms/:slug
-
-### CMS (Public)
-- GET /api/public/cms/:slug
-- GET /api/public/cms
-
-### Courses
-- GET /api/courses
-- GET /api/courses/:id
-- GET /api/enrolled-courses
-
-### Admin
-- GET /api/admin/users
-- PUT /api/admin/users/:id
-- PUT /api/admin/modules/:id
-- PUT /api/admin/lessons/:id
-- DELETE /api/admin/modules/:id
-- DELETE /api/admin/lessons/:id
-
-## Test Credentials
-- **Admin:** admin@lumina.com / admin123
-
-## Current Status (Updated: 2026-02-27)
-- Backend: ✅ Running (FastAPI + MongoDB)
-- Frontend: ✅ Running (React)
-- Auth: ✅ Working (JWT + OTP email)
-- Courses: ✅ Working (CRUD + filtering)
-- Course Editor: ✅ Working (modules, lessons, quizzes)
-- Cart/Wishlist: ✅ Working
-- Payments: ✅ Configured (PayU test mode)
-- Video: ✅ Configured (Cloudflare R2 signed URLs)
-- Email: ✅ Configured (SMTP GoDaddy SSL)
-- Admin Users: ✅ Working (ban/unban, search, filter, performance view)
-- Admin Withdrawals: ✅ Working (approve/reject with email)
-- Referral System: ✅ Working (20% lifetime commission)
-- CMS: ✅ Working (7 sections: Home, About, Contact, FAQ, Navbar, Footer, Testimonials)
-- Profile: ✅ Working (MongoDB Base64 image, college details)
-- Notifications: ✅ Working (with delete/mark read)
-- Certificates: ✅ Working (request, name lock, admin unlock)
-- Support Tickets: ✅ Working (status: open/in-progress/closed)
-- Mobile Responsive: ✅ Working (tested 768px, 320px)
-
-## Testing Results
-- iteration_1: 17/17 backend tests passing
-- iteration_2: 23/23 backend tests passing
-- iteration_3: 26/26 backend tests passing (100%)
-
-## Bug Fixes Applied
-- Fixed: CoursesPage SelectItem empty value error
-- Fixed: Public CMS endpoint
-- Fixed: Certificate routes not registered (routes after app.include_router)
-- Fixed: Admin withdrawals approval with email notification
-- Fixed: Profile image storage in MongoDB (not R2)
-
-## Backlog
-- [ ] Real-time chat (WebSocket)
-- [ ] Push notifications
-- [ ] Certificate PDF generation with template
-- [ ] Course analytics dashboard
-- [ ] Student progress reports
-- [ ] PayU payout API integration for withdrawals
+## Next Tasks
+1. Test complete end-to-end flow with real PayU credentials
+2. Add more CMS content sections
+3. Implement PayU payout for automated withdrawals
+4. Certificate template customization
