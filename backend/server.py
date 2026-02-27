@@ -3370,6 +3370,107 @@ async def startup():
         ]
         await db.faqs.insert_many(sample_faqs)
         logger.info(f"Seeded {len(sample_faqs)} sample FAQs")
+    
+    # Seed CMS pages if not exist
+    cms_count = await db.cms.count_documents({})
+    if cms_count == 0:
+        cms_pages = [
+            {
+                "slug": "privacy-policy",
+                "title": "Privacy Policy",
+                "content": {
+                    "title": "Privacy Policy",
+                    "description": "Your privacy is important to us. This policy explains how LUMINA collects, uses, and protects your personal information.",
+                    "sections": [
+                        {"title": "Information We Collect", "content": "We collect information you provide directly to us, such as when you create an account, make a purchase, or contact us for support. This may include your name, email address, payment information, and any other information you choose to provide."},
+                        {"title": "How We Use Your Information", "content": "We use the information we collect to provide, maintain, and improve our services, process transactions, send communications, and personalize your experience."},
+                        {"title": "Information Sharing", "content": "We do not sell your personal information. We may share your information with service providers who assist us in operating our platform, processing payments, or analyzing how our service is used."},
+                        {"title": "Data Security", "content": "We implement appropriate security measures to protect your personal information. However, no method of transmission over the Internet is 100% secure."},
+                        {"title": "Your Rights", "content": "You have the right to access, update, or delete your personal information. You can do this through your account settings or by contacting us."},
+                        {"title": "Contact Us", "content": "If you have any questions about this Privacy Policy, please contact us at support@lumina.com."}
+                    ]
+                },
+                "seo": {"metaTitle": "Privacy Policy - LUMINA", "metaDescription": "LUMINA privacy policy explains how we collect and protect your data."},
+                "updated_at": datetime.now(timezone.utc).isoformat()
+            },
+            {
+                "slug": "terms-of-service",
+                "title": "Terms of Service",
+                "content": {
+                    "title": "Terms of Service",
+                    "description": "Welcome to LUMINA. By using our platform, you agree to these terms and conditions.",
+                    "sections": [
+                        {"title": "Account Registration", "content": "To access certain features, you must register for an account. You are responsible for maintaining the confidentiality of your account credentials and for all activities under your account."},
+                        {"title": "Course Purchases", "content": "When you purchase a course, you receive a license to access the course content for personal, non-commercial use. Course content may not be shared, distributed, or resold."},
+                        {"title": "Refund Policy", "content": "We offer a 30-day refund policy for course purchases. Refund requests must be submitted through our support system."},
+                        {"title": "User Conduct", "content": "You agree not to use our platform for any unlawful purpose or in any way that could damage, disable, or impair our services."},
+                        {"title": "Intellectual Property", "content": "All content on LUMINA, including courses, videos, and materials, is owned by LUMINA or our instructors and is protected by copyright laws."},
+                        {"title": "Limitation of Liability", "content": "LUMINA shall not be liable for any indirect, incidental, special, or consequential damages arising from your use of our platform."},
+                        {"title": "Changes to Terms", "content": "We may modify these terms at any time. Continued use of our platform after changes constitutes acceptance of the new terms."}
+                    ]
+                },
+                "seo": {"metaTitle": "Terms of Service - LUMINA", "metaDescription": "LUMINA terms of service and conditions for using our platform."},
+                "updated_at": datetime.now(timezone.utc).isoformat()
+            },
+            {
+                "slug": "refund-policy",
+                "title": "Refund Policy",
+                "content": {
+                    "title": "Refund Policy",
+                    "description": "We want you to be completely satisfied with your purchase. Here's our refund policy.",
+                    "sections": [
+                        {"title": "30-Day Money Back Guarantee", "content": "If you're not satisfied with a course, you can request a full refund within 30 days of purchase."},
+                        {"title": "How to Request a Refund", "content": "To request a refund, go to your Orders page and click 'Request Refund' or contact our support team via the Support section."},
+                        {"title": "Refund Processing", "content": "Refunds are processed within 5-7 business days after approval. The amount will be credited to your original payment method."},
+                        {"title": "Non-Refundable Items", "content": "Certificate fees and completed courses with more than 50% progress may not be eligible for refunds."}
+                    ]
+                },
+                "seo": {"metaTitle": "Refund Policy - LUMINA", "metaDescription": "LUMINA refund policy and money back guarantee information."},
+                "updated_at": datetime.now(timezone.utc).isoformat()
+            },
+            {
+                "slug": "about",
+                "title": "About Us",
+                "content": {
+                    "title": "About LUMINA",
+                    "description": "LUMINA is an innovative online learning platform dedicated to providing high-quality education accessible to everyone, everywhere.",
+                    "mission": "Our mission is to democratize education by providing world-class learning experiences at affordable prices. We believe that quality education should be accessible to everyone, regardless of their location or background.",
+                    "vision": "We envision a world where anyone can transform their life through learning. By 2030, we aim to have helped 10 million students achieve their career goals through our platform."
+                },
+                "seo": {"metaTitle": "About Us - LUMINA", "metaDescription": "Learn about LUMINA's mission to provide accessible, high-quality online education."},
+                "updated_at": datetime.now(timezone.utc).isoformat()
+            },
+            {
+                "slug": "contact",
+                "title": "Contact Us",
+                "content": {
+                    "title": "Contact Us",
+                    "description": "We'd love to hear from you! Get in touch with our team for any questions or support.",
+                    "email": "support@lumina.com",
+                    "phone": "+1 (555) 123-4567",
+                    "address": "123 Learning Street, Education City, EC 12345"
+                },
+                "seo": {"metaTitle": "Contact Us - LUMINA", "metaDescription": "Get in touch with LUMINA support team."},
+                "updated_at": datetime.now(timezone.utc).isoformat()
+            },
+            {
+                "slug": "careers",
+                "title": "Careers",
+                "content": {
+                    "title": "Join Our Team",
+                    "description": "We're always looking for talented individuals who are passionate about education and technology.",
+                    "sections": [
+                        {"title": "Why Work at LUMINA?", "content": "Join a fast-growing EdTech company making a real impact on learners worldwide. We offer competitive salaries, flexible work arrangements, and opportunities for growth."},
+                        {"title": "Open Positions", "content": "Check our careers page regularly for new opportunities. We're often hiring for engineering, design, content, and marketing roles."},
+                        {"title": "How to Apply", "content": "Send your resume and portfolio to careers@lumina.com with the position title in the subject line."}
+                    ]
+                },
+                "seo": {"metaTitle": "Careers - LUMINA", "metaDescription": "Join the LUMINA team and help transform education."},
+                "updated_at": datetime.now(timezone.utc).isoformat()
+            }
+        ]
+        await db.cms.insert_many(cms_pages)
+        logger.info(f"Seeded {len(cms_pages)} CMS pages")
 
 # Include the router in the main app (MUST be after all route definitions)
 app.include_router(api_router)
