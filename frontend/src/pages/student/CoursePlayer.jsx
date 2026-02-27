@@ -60,13 +60,20 @@ export default function CoursePlayerPage() {
     useEffect(() => {
         const fetchCourse = async () => {
             try {
-                const response = await axios.get(`${API}/courses/${courseId}/enrolled`, {
-                    headers: { Authorization: `Bearer ${accessToken}` }
-                });
-                setCourse(response.data);
+                const [courseRes, certRes] = await Promise.all([
+                    axios.get(`${API}/courses/${courseId}/enrolled`, {
+                        headers: { Authorization: `Bearer ${accessToken}` }
+                    }),
+                    axios.get(`${API}/certificates/${courseId}`, {
+                        headers: { Authorization: `Bearer ${accessToken}` }
+                    }).catch(() => ({ data: { certificate: null } }))
+                ]);
+                
+                setCourse(courseRes.data);
+                setCertificate(certRes.data.certificate);
                 
                 // Set first incomplete lesson as current
-                const modules = response.data.modules || [];
+                const modules = courseRes.data.modules || [];
                 for (const module of modules) {
                     for (const lesson of module.lessons || []) {
                         if (!lesson.progress?.is_completed) {
@@ -90,6 +97,32 @@ export default function CoursePlayerPage() {
         };
         if (accessToken) fetchCourse();
     }, [courseId, accessToken]);
+
+    const handleRequestCertificate = async () => {
+        if (!certName.trim()) {
+            toast.error("Please enter your name for the certificate");
+            return;
+        }
+        
+        setIsRequesting(true);
+        try {
+            const response = await axios.post(
+                `${API}/certificates/${courseId}/request`,
+                null,
+                {
+                    params: { name_on_certificate: certName },
+                    headers: { Authorization: `Bearer ${accessToken}` }
+                }
+            );
+            toast.success("Certificate generated successfully!");
+            setCertificate(response.data.certificate);
+            setShowCertDialog(false);
+        } catch (error) {
+            toast.error(error.response?.data?.detail || "Failed to generate certificate");
+        } finally {
+            setIsRequesting(false);
+        }
+    };
 
     const handleLessonComplete = async () => {
         if (!currentLesson) return;
