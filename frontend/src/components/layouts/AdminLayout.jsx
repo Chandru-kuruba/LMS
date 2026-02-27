@@ -14,7 +14,9 @@ import {
     Bell,
     Zap,
     ChevronRight,
-    ArrowLeft
+    ArrowLeft,
+    MessageSquare,
+    Award
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -25,6 +27,7 @@ const adminLinks = [
     { icon: Users, label: "Users", href: "/admin/users" },
     { icon: BookOpen, label: "Courses", href: "/admin/courses" },
     { icon: DollarSign, label: "Withdrawals", href: "/admin/withdrawals" },
+    { icon: MessageSquare, label: "Tickets", href: "/admin/tickets" },
     { icon: FileText, label: "CMS", href: "/admin/cms" },
 ];
 
