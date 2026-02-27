@@ -133,6 +133,8 @@ function App() {
                         <Route path="/admin/courses/:courseId" element={<CourseEditorPage />} />
                         <Route path="/admin/withdrawals" element={<AdminWithdrawalsPage />} />
                         <Route path="/admin/cms" element={<AdminCMSPage />} />
+                        <Route path="/admin/tickets" element={<AdminTicketsPage />} />
+                        <Route path="/admin/users/:userId/performance" element={<AdminUserPerformancePage />} />
                     </Route>
 
                     {/* Fallback */}
