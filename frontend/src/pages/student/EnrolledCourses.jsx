@@ -233,11 +233,36 @@ export default function EnrolledCoursesPage() {
                                     <h3 className="font-outfit text-lg font-semibold text-white mb-2 line-clamp-2 group-hover:text-purple-400 transition-colors">
                                         {course.title}
                                     </h3>
-                                    <div className="flex items-center gap-4 text-sm text-slate-500">
+                                    <div className="flex items-center justify-between text-sm text-slate-500">
                                         <span className="flex items-center gap-1">
                                             <BookOpen className="w-4 h-4" />
                                             {course.enrollment?.completed_lessons?.length || 0} lessons done
                                         </span>
+                                        
+                                        {/* Certificate Button */}
+                                        {course.enrollment?.is_completed && (
+                                            certificates[course.id] ? (
+                                                <Link 
+                                                    to="/certificates"
+                                                    onClick={(e) => e.stopPropagation()}
+                                                    className="flex items-center gap-1 text-green-400 hover:text-green-300"
+                                                >
+                                                    <Award className="w-4 h-4" />
+                                                    View Certificate
+                                                </Link>
+                                            ) : (
+                                                <Button
+                                                    size="sm"
+                                                    variant="outline"
+                                                    className="border-yellow-500/50 text-yellow-400 hover:bg-yellow-500/10 text-xs h-7"
+                                                    onClick={(e) => openCertDialog(course, e)}
+                                                    data-testid={`request-cert-${course.id}`}
+                                                >
+                                                    <Award className="w-3 h-3 mr-1" />
+                                                    Get Certificate
+                                                </Button>
+                                            )
+                                        )}
                                     </div>
                                 </div>
                             </Link>
@@ -245,6 +270,46 @@ export default function EnrolledCoursesPage() {
                     ))}
                 </div>
             )}
+
+            {/* Certificate Request Dialog */}
+            <Dialog open={showCertDialog} onOpenChange={setShowCertDialog}>
+                <DialogContent className="glass-heavy border-purple-500/30">
+                    <DialogHeader>
+                        <DialogTitle className="text-white flex items-center gap-2">
+                            <Award className="w-5 h-5 text-yellow-400" />
+                            Request Certificate
+                        </DialogTitle>
+                        <DialogDescription className="text-slate-400">
+                            Enter your name exactly as you want it to appear on your certificate. 
+                            <span className="text-yellow-400 block mt-1">
+                                Note: This name cannot be changed after submission.
+                            </span>
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                        <div className="space-y-2">
+                            <Label className="text-slate-300">Course</Label>
+                            <p className="text-white font-medium">{selectedCourse?.title}</p>
+                        </div>
+                        <div className="space-y-2">
+                            <Label className="text-slate-300">Your Name on Certificate *</Label>
+                            <Input
+                                value={certName}
+                                onChange={(e) => setCertName(e.target.value)}
+                                placeholder="Enter your full name"
+                                className="input-neon"
+                            />
+                        </div>
+                        <Button
+                            className="w-full btn-primary"
+                            onClick={handleRequestCertificate}
+                            disabled={isRequesting || !certName.trim()}
+                        >
+                            {isRequesting ? "Generating..." : "Generate Certificate"}
+                        </Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }
