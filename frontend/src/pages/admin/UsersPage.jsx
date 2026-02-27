@@ -218,9 +218,11 @@ export default function AdminUsersPage() {
                                                     </Button>
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end" className="glass-heavy border-white/10">
-                                                    <DropdownMenuItem className="text-slate-300 hover:text-white">
-                                                        <Eye className="w-4 h-4 mr-2" />
-                                                        View Details
+                                                    <DropdownMenuItem asChild className="text-slate-300 hover:text-white">
+                                                        <Link to={`/admin/users/${user.id}/performance`}>
+                                                            <TrendingUp className="w-4 h-4 mr-2" />
+                                                            View Performance
+                                                        </Link>
                                                     </DropdownMenuItem>
                                                     <DropdownMenuItem
                                                         className="text-slate-300 hover:text-white"
