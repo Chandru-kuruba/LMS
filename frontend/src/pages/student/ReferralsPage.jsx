@@ -164,6 +164,54 @@ export default function ReferralsPage() {
                             </p>
                         </div>
                     </div>
+                    {(stats?.wallet_balance || 0) >= 10 && (
+                        <Dialog open={showWithdrawDialog} onOpenChange={setShowWithdrawDialog}>
+                            <DialogTrigger asChild>
+                                <Button className="w-full btn-primary mt-2" data-testid="withdraw-btn">
+                                    <ArrowDownToLine className="w-4 h-4 mr-2" />
+                                    Withdraw
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent className="glass-heavy border-purple-500/30">
+                                <DialogHeader>
+                                    <DialogTitle className="text-white">Request Withdrawal</DialogTitle>
+                                </DialogHeader>
+                                <div className="space-y-4 py-4">
+                                    <div className="space-y-2">
+                                        <Label className="text-slate-300">Amount (USD)</Label>
+                                        <Input
+                                            type="number"
+                                            min="10"
+                                            max={stats?.wallet_balance || 0}
+                                            value={withdrawAmount}
+                                            onChange={(e) => setWithdrawAmount(e.target.value)}
+                                            placeholder="Minimum $10"
+                                            className="input-neon"
+                                        />
+                                        <p className="text-xs text-slate-500">
+                                            Available: ${stats?.wallet_balance?.toFixed(2) || "0.00"}
+                                        </p>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label className="text-slate-300">Bank/Payment Details</Label>
+                                        <Textarea
+                                            value={bankDetails}
+                                            onChange={(e) => setBankDetails(e.target.value)}
+                                            placeholder="Enter your bank account details or PayPal/UPI ID for receiving payment"
+                                            className="input-neon min-h-[100px]"
+                                        />
+                                    </div>
+                                    <Button
+                                        className="w-full btn-primary"
+                                        onClick={handleWithdrawRequest}
+                                        disabled={isWithdrawing}
+                                    >
+                                        {isWithdrawing ? "Submitting..." : "Submit Request"}
+                                    </Button>
+                                </div>
+                            </DialogContent>
+                        </Dialog>
+                    )}
                 </motion.div>
 
                 <motion.div
