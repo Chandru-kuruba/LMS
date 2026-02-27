@@ -35,6 +35,8 @@ import ProfilePage from "@/pages/student/ProfilePage";
 import ReferralsPage from "@/pages/student/ReferralsPage";
 import OrdersPage from "@/pages/student/OrdersPage";
 import TicketsPage from "@/pages/student/TicketsPage";
+import NotificationsPage from "@/pages/student/NotificationsPage";
+import CertificatesPage from "@/pages/student/CertificatesPage";
 
 // Admin Pages
 import AdminDashboard from "@/pages/admin/Dashboard";
