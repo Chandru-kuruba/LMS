@@ -15,17 +15,27 @@ import {
     HelpCircle,
     Award,
     Menu,
-    X
+    X,
+    Download
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
     Accordion,
     AccordionContent,
     AccordionItem,
     AccordionTrigger,
 } from "@/components/ui/accordion";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+} from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuthStore } from "@/store/authStore";
 
@@ -33,7 +43,7 @@ const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 export default function CoursePlayerPage() {
     const { courseId } = useParams();
-    const { accessToken } = useAuthStore();
+    const { user, accessToken } = useAuthStore();
     const [course, setCourse] = useState(null);
     const [currentLesson, setCurrentLesson] = useState(null);
     const [currentModule, setCurrentModule] = useState(null);
@@ -42,6 +52,10 @@ export default function CoursePlayerPage() {
     const [isQuizMode, setIsQuizMode] = useState(false);
     const [quizAnswers, setQuizAnswers] = useState({});
     const [quizResult, setQuizResult] = useState(null);
+    const [certificate, setCertificate] = useState(null);
+    const [showCertDialog, setShowCertDialog] = useState(false);
+    const [certName, setCertName] = useState("");
+    const [isRequesting, setIsRequesting] = useState(false);
 
     useEffect(() => {
         const fetchCourse = async () => {
