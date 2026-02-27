@@ -136,11 +136,13 @@ export default function ProfilePage() {
                             onChange={handleImageUpload}
                             accept="image/jpeg,image/png,image/webp"
                             className="hidden"
+                            data-testid="profile-image-input"
                         />
                         <button
                             onClick={() => fileInputRef.current?.click()}
                             disabled={isUploading}
                             className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-white hover:bg-purple-500 transition-colors disabled:opacity-50"
+                            data-testid="profile-image-upload-btn"
                         >
                             {isUploading ? (
                                 <Loader2 className="w-4 h-4 animate-spin" />
