@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import axios from "axios";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -8,18 +8,22 @@ const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 export default function DynamicPage() {
     const { slug } = useParams();
+    const location = useLocation();
     const [content, setContent] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
 
+    // Determine slug from URL params or pathname
+    const pageSlug = slug || location.pathname.replace('/', '');
+
     useEffect(() => {
         fetchContent();
-    }, [slug]);
+    }, [pageSlug]);
 
     const fetchContent = async () => {
         setIsLoading(true);
         try {
-            const response = await axios.get(`${API}/public/cms/${slug}`);
+            const response = await axios.get(`${API}/public/cms/${pageSlug}`);
             setContent(response.data);
             setError(null);
         } catch (err) {
