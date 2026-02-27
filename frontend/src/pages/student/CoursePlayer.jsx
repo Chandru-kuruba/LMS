@@ -482,6 +482,47 @@ export default function CoursePlayerPage() {
                 </div>
 
                 <ScrollArea className="h-[calc(100%-5rem)]">
+                    {/* Certificate Section - Show when course is complete */}
+                    {progress >= 100 && (
+                        <div className="p-4 mx-2 mt-2 rounded-xl bg-gradient-to-r from-yellow-600/20 to-purple-600/20 border border-yellow-500/30">
+                            <div className="flex items-center gap-2 mb-2">
+                                <Award className="w-5 h-5 text-yellow-400" />
+                                <span className="font-semibold text-white">Course Complete!</span>
+                            </div>
+                            {certificate ? (
+                                <div className="space-y-2">
+                                    <p className="text-sm text-slate-300">
+                                        Certificate earned for: <span className="text-yellow-400">{certificate.name_on_certificate}</span>
+                                    </p>
+                                    <Link to="/certificates">
+                                        <Button size="sm" className="w-full btn-primary">
+                                            <Download className="w-4 h-4 mr-2" />
+                                            View Certificate
+                                        </Button>
+                                    </Link>
+                                </div>
+                            ) : (
+                                <div className="space-y-2">
+                                    <p className="text-sm text-slate-400">
+                                        Get your certificate of completion
+                                    </p>
+                                    <Button 
+                                        size="sm" 
+                                        className="w-full bg-yellow-600 hover:bg-yellow-500 text-white"
+                                        onClick={() => {
+                                            setCertName(`${user?.first_name || ""} ${user?.last_name || ""}`.trim());
+                                            setShowCertDialog(true);
+                                        }}
+                                        data-testid="request-certificate-btn"
+                                    >
+                                        <Award className="w-4 h-4 mr-2" />
+                                        Request Certificate
+                                    </Button>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                    
                     <Accordion type="multiple" defaultValue={[currentModule?.id]} className="px-2 py-2">
                         {course.modules?.map((module, moduleIndex) => (
                             <AccordionItem key={module.id} value={module.id} className="border-none">
