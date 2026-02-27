@@ -45,6 +45,8 @@ import AdminCoursesPage from "@/pages/admin/CoursesPage";
 import AdminWithdrawalsPage from "@/pages/admin/WithdrawalsPage";
 import AdminCMSPage from "@/pages/admin/CMSPage";
 import CourseEditorPage from "@/pages/admin/CourseEditor";
+import AdminTicketsPage from "@/pages/admin/TicketsPage";
+import AdminUserPerformancePage from "@/pages/admin/UserPerformancePage";
 
 // Protected Route Component
 const ProtectedRoute = ({ children, requireAdmin = false }) => {
