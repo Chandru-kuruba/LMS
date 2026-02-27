@@ -136,6 +136,7 @@ function App() {
                         <Route path="/admin/cms" element={<AdminCMSPage />} />
                         <Route path="/admin/tickets" element={<AdminTicketsPage />} />
                         <Route path="/admin/users/:userId/performance" element={<AdminUserPerformancePage />} />
+                        <Route path="/admin/certificates" element={<CertificateTemplatesPage />} />
                     </Route>
 
                     {/* Fallback */}
