@@ -26,6 +26,7 @@ const adminLinks = [
     { icon: LayoutDashboard, label: "Dashboard", href: "/admin" },
     { icon: Users, label: "Users", href: "/admin/users" },
     { icon: BookOpen, label: "Courses", href: "/admin/courses" },
+    { icon: Award, label: "Certificates", href: "/admin/certificates" },
     { icon: DollarSign, label: "Withdrawals", href: "/admin/withdrawals" },
     { icon: MessageSquare, label: "Tickets", href: "/admin/tickets" },
     { icon: FileText, label: "CMS", href: "/admin/cms" },
