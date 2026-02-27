@@ -15,7 +15,9 @@ import {
     X,
     Zap,
     ChevronRight,
-    Settings
+    Settings,
+    Bell,
+    Award
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -26,10 +28,12 @@ import { NotificationDropdown } from "@/components/NotificationDropdown";
 const sidebarLinks = [
     { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
     { icon: BookOpen, label: "My Courses", href: "/my-courses" },
+    { icon: Award, label: "Certificates", href: "/certificates" },
     { icon: ShoppingCart, label: "Cart", href: "/cart" },
     { icon: Heart, label: "Wishlist", href: "/wishlist" },
     { icon: Share2, label: "Referrals", href: "/referrals" },
     { icon: Receipt, label: "Orders", href: "/orders" },
+    { icon: Bell, label: "Notifications", href: "/notifications" },
     { icon: HelpCircle, label: "Support", href: "/tickets" },
     { icon: User, label: "Profile", href: "/profile" },
 ];
