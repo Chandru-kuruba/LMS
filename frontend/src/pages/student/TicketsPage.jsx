@@ -287,9 +287,23 @@ export default function TicketsPage() {
                                     <h2 className="font-semibold text-white">{selectedTicket.subject}</h2>
                                     <p className="text-sm text-slate-500 capitalize">{selectedTicket.category}</p>
                                 </div>
-                                <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(selectedTicket.status)}`}>
-                                    {selectedTicket.status}
-                                </span>
+                                <div className="flex items-center gap-2">
+                                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(selectedTicket.status)}`}>
+                                        {selectedTicket.status}
+                                    </span>
+                                    {selectedTicket.status !== "closed" && (
+                                        <Button
+                                            size="sm"
+                                            variant="outline"
+                                            className="border-green-500/50 text-green-400 hover:bg-green-500/10"
+                                            onClick={handleCloseTicket}
+                                            data-testid="close-ticket-btn"
+                                        >
+                                            <CheckCircle className="w-4 h-4 mr-1" />
+                                            Mark Solved
+                                        </Button>
+                                    )}
+                                </div>
                             </div>
 
                             <div className="space-y-4 max-h-80 overflow-y-auto mb-4">
