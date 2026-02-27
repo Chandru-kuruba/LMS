@@ -3232,6 +3232,85 @@ async def update_certificate_name(
     )
     return {"message": "Certificate name updated"}
 
+# Certificate Template routes
+@api_router.get("/admin/certificate-templates")
+async def get_certificate_templates(current_user: dict = Depends(get_admin_user)):
+    """Get all certificate templates"""
+    templates = await db.certificate_templates.find({}, {"_id": 0}).to_list(100)
+    return {"templates": templates}
+
+@api_router.post("/admin/certificate-templates")
+async def create_certificate_template(template: dict, current_user: dict = Depends(get_admin_user)):
+    """Create a new certificate template"""
+    template_data = {
+        "id": str(uuid.uuid4()),
+        "name": template.get("name", ""),
+        "background_image": template.get("background_image", ""),
+        "name_position": template.get("name_position", {"x": 500, "y": 350}),
+        "cert_id_position": template.get("cert_id_position", {"x": 500, "y": 650}),
+        "date_position": template.get("date_position", {"x": 500, "y": 600}),
+        "font_family": template.get("font_family", "Great Vibes"),
+        "font_size": template.get("font_size", 48),
+        "font_color": template.get("font_color", "#8B5CF6"),
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    await db.certificate_templates.insert_one(template_data)
+    return {"message": "Template created", "template": {k: v for k, v in template_data.items() if k != "_id"}}
+
+@api_router.put("/admin/certificate-templates/{template_id}")
+async def update_certificate_template(
+    template_id: str, 
+    template: dict, 
+    current_user: dict = Depends(get_admin_user)
+):
+    """Update certificate template"""
+    update_data = {
+        "name": template.get("name"),
+        "background_image": template.get("background_image"),
+        "name_position": template.get("name_position"),
+        "cert_id_position": template.get("cert_id_position"),
+        "date_position": template.get("date_position"),
+        "font_family": template.get("font_family"),
+        "font_size": template.get("font_size"),
+        "font_color": template.get("font_color"),
+        "updated_at": datetime.now(timezone.utc).isoformat()
+    }
+    await db.certificate_templates.update_one(
+        {"id": template_id},
+        {"$set": update_data}
+    )
+    return {"message": "Template updated"}
+
+@api_router.delete("/admin/certificate-templates/{template_id}")
+async def delete_certificate_template(template_id: str, current_user: dict = Depends(get_admin_user)):
+    """Delete certificate template"""
+    await db.certificate_templates.delete_one({"id": template_id})
+    # Remove template assignment from courses
+    await db.courses.update_many(
+        {"certificate_template_id": template_id},
+        {"$unset": {"certificate_template_id": ""}}
+    )
+    return {"message": "Template deleted"}
+
+@api_router.post("/admin/certificate-templates/{template_id}/assign")
+async def assign_template_to_course(
+    template_id: str,
+    course_id: str,
+    current_user: dict = Depends(get_admin_user)
+):
+    """Assign certificate template to a course"""
+    # Verify template exists
+    template = await db.certificate_templates.find_one({"id": template_id})
+    if not template:
+        raise HTTPException(status_code=404, detail="Template not found")
+    
+    # Assign to course
+    await db.courses.update_one(
+        {"id": course_id},
+        {"$set": {"certificate_template_id": template_id}}
+    )
+    return {"message": "Template assigned to course"}
+
 @app.on_event("startup")
 async def startup():
     try:
