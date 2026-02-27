@@ -428,6 +428,59 @@ export default function ReferralsPage() {
                     </div>
                 </div>
             )}
+
+            {/* Withdrawal History */}
+            {withdrawals.length > 0 && (
+                <div className="glass-heavy rounded-2xl overflow-hidden">
+                    <div className="p-6 border-b border-white/10">
+                        <h2 className="font-outfit text-xl font-bold text-white">Withdrawal History</h2>
+                    </div>
+                    <div className="overflow-x-auto">
+                        <table className="w-full">
+                            <thead className="bg-slate-800/50">
+                                <tr className="text-left text-sm text-slate-400">
+                                    <th className="p-4 font-medium">Date</th>
+                                    <th className="p-4 font-medium">Amount</th>
+                                    <th className="p-4 font-medium">Status</th>
+                                    <th className="p-4 font-medium">Processed</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {withdrawals.map((w, index) => (
+                                    <tr key={w.id} className="border-t border-white/5">
+                                        <td className="p-4 text-slate-300">
+                                            {new Date(w.created_at).toLocaleDateString()}
+                                        </td>
+                                        <td className="p-4 text-white font-medium">
+                                            ${w.amount?.toFixed(2)}
+                                        </td>
+                                        <td className="p-4">
+                                            <span className={`px-2 py-1 rounded-full text-xs flex items-center gap-1 w-fit ${
+                                                w.status === "approved" 
+                                                    ? "bg-green-500/20 text-green-400"
+                                                    : w.status === "rejected"
+                                                    ? "bg-red-500/20 text-red-400"
+                                                    : "bg-yellow-500/20 text-yellow-400"
+                                            }`}>
+                                                {w.status === "approved" && <CheckCircle className="w-3 h-3" />}
+                                                {w.status === "rejected" && <XCircle className="w-3 h-3" />}
+                                                {w.status === "pending" && <Clock className="w-3 h-3" />}
+                                                {w.status}
+                                            </span>
+                                        </td>
+                                        <td className="p-4 text-slate-500">
+                                            {w.processed_at 
+                                                ? new Date(w.processed_at).toLocaleDateString()
+                                                : "-"
+                                            }
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
