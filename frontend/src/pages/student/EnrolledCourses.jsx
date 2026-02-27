@@ -2,38 +2,102 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import axios from "axios";
+import { toast } from "sonner";
 import { BookOpen, Play, Award, Clock, Search, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Label } from "@/components/ui/label";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+} from "@/components/ui/dialog";
 import { useAuthStore } from "@/store/authStore";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 export default function EnrolledCoursesPage() {
-    const { accessToken } = useAuthStore();
+    const { user, accessToken } = useAuthStore();
     const [courses, setCourses] = useState([]);
+    const [certificates, setCertificates] = useState({});
     const [isLoading, setIsLoading] = useState(true);
     const [filter, setFilter] = useState("all");
     const [search, setSearch] = useState("");
+    const [showCertDialog, setShowCertDialog] = useState(false);
+    const [selectedCourse, setSelectedCourse] = useState(null);
+    const [certName, setCertName] = useState("");
+    const [isRequesting, setIsRequesting] = useState(false);
 
     useEffect(() => {
-        const fetchCourses = async () => {
+        const fetchData = async () => {
             try {
-                const response = await axios.get(`${API}/enrolled-courses`, {
-                    headers: { Authorization: `Bearer ${accessToken}` }
+                const [coursesRes, certsRes] = await Promise.all([
+                    axios.get(`${API}/enrolled-courses`, {
+                        headers: { Authorization: `Bearer ${accessToken}` }
+                    }),
+                    axios.get(`${API}/certificates`, {
+                        headers: { Authorization: `Bearer ${accessToken}` }
+                    })
+                ]);
+                setCourses(coursesRes.data.courses || []);
+                // Create a map of course_id to certificate
+                const certMap = {};
+                (certsRes.data.certificates || []).forEach(cert => {
+                    certMap[cert.course_id] = cert;
                 });
-                setCourses(response.data.courses || []);
+                setCertificates(certMap);
             } catch (error) {
-                console.error("Failed to fetch enrolled courses:", error);
+                console.error("Failed to fetch data:", error);
             } finally {
                 setIsLoading(false);
             }
         };
-        if (accessToken) fetchCourses();
+        if (accessToken) fetchData();
     }, [accessToken]);
+
+    const handleRequestCertificate = async () => {
+        if (!certName.trim()) {
+            toast.error("Please enter your name for the certificate");
+            return;
+        }
+        
+        setIsRequesting(true);
+        try {
+            const response = await axios.post(
+                `${API}/certificates/${selectedCourse.id}/request`,
+                null,
+                {
+                    params: { name_on_certificate: certName },
+                    headers: { Authorization: `Bearer ${accessToken}` }
+                }
+            );
+            toast.success("Certificate generated successfully!");
+            setCertificates({
+                ...certificates,
+                [selectedCourse.id]: response.data.certificate
+            });
+            setShowCertDialog(false);
+            setCertName("");
+            setSelectedCourse(null);
+        } catch (error) {
+            toast.error(error.response?.data?.detail || "Failed to generate certificate");
+        } finally {
+            setIsRequesting(false);
+        }
+    };
+
+    const openCertDialog = (course, e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setSelectedCourse(course);
+        setCertName(`${user?.first_name || ""} ${user?.last_name || ""}`.trim());
+        setShowCertDialog(true);
+    };
 
     const filteredCourses = courses.filter((course) => {
         const matchesSearch = course.title.toLowerCase().includes(search.toLowerCase());
