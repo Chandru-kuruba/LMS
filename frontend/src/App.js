@@ -113,6 +113,8 @@ function App() {
                         <Route path="/referrals" element={<ReferralsPage />} />
                         <Route path="/orders" element={<OrdersPage />} />
                         <Route path="/tickets" element={<TicketsPage />} />
+                        <Route path="/notifications" element={<NotificationsPage />} />
+                        <Route path="/certificates" element={<CertificatesPage />} />
                     </Route>
 
                     {/* Admin Routes */}
