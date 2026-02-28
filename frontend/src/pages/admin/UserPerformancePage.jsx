@@ -213,7 +213,7 @@ export default function AdminUserPerformancePage() {
                         <div>
                             <p className="text-sm text-slate-400">Referral Earnings</p>
                             <p className="font-outfit text-2xl font-bold text-white">
-                                ${total_referral_earnings?.toFixed(2) || "0.00"}
+                                ₹{total_referral_earnings?.toFixed(2) || "0.00"}
                             </p>
                         </div>
                     </div>
