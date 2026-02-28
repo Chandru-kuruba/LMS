@@ -135,7 +135,7 @@ export default function CheckoutPage() {
                                         <p className="text-sm text-slate-500">{item.course?.category}</p>
                                     </div>
                                     <p className="font-semibold text-purple-400">
-                                        ${item.price?.toFixed(2)}
+                                        ₹{item.price?.toFixed(2)}
                                     </p>
                                 </div>
                             ))}
