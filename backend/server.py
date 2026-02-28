@@ -544,7 +544,7 @@ def send_order_success_email(to_email: str, user_name: str, order: dict, courses
                         {course_rows}
                         <tr class="total-row">
                             <td style="padding: 12px;">Total Paid</td>
-                            <td style="padding: 12px; text-align: right; font-size: 20px;">${order['total']:.2f}</td>
+                            <td style="padding: 12px; text-align: right; font-size: 20px;">₹{order['total']:.2f}</td>
                         </tr>
                     </tbody>
                 </table>
