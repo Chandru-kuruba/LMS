@@ -168,6 +168,8 @@ export default function CertificateDesignPage() {
     const [design, setDesign] = useState({ ...defaultGlobalDesign });
     const [activeTab, setActiveTab] = useState("layout");
     const [newLogoUrl, setNewLogoUrl] = useState("");
+    const [draggedElement, setDraggedElement] = useState(null);
+    const previewRef = React.useRef(null);
 
     useEffect(() => {
         fetchGlobalDesign();
@@ -186,6 +188,92 @@ export default function CertificateDesignPage() {
         } finally {
             setIsLoading(false);
         }
+    };
+
+    // Handle drag start
+    const handleDragStart = (e, elementType, logoId = null) => {
+        e.stopPropagation();
+        setDraggedElement({ type: elementType, logoId });
+    };
+
+    // Handle drag over preview
+    const handleDragOver = (e) => {
+        e.preventDefault();
+    };
+
+    // Handle drop on preview
+    const handleDrop = (e) => {
+        e.preventDefault();
+        if (!draggedElement || !previewRef.current) return;
+
+        const rect = previewRef.current.getBoundingClientRect();
+        const x = ((e.clientX - rect.left) / rect.width) * PREVIEW_WIDTH;
+        const y = ((e.clientY - rect.top) / rect.height) * PREVIEW_HEIGHT;
+
+        if (draggedElement.type === 'logo') {
+            setDesign(prev => ({
+                ...prev,
+                logo_position: { x: Math.round(x), y: Math.round(y) }
+            }));
+        } else if (draggedElement.type === 'additional_logo' && draggedElement.logoId) {
+            setDesign(prev => ({
+                ...prev,
+                additional_logos: prev.additional_logos.map(logo =>
+                    logo.id === draggedElement.logoId
+                        ? { ...logo, position: { x: Math.round(x), y: Math.round(y) } }
+                        : logo
+                )
+            }));
+        }
+
+        setDraggedElement(null);
+    };
+
+    // Handle mouse move for drag-and-drop preview positioning
+    const handleMouseDown = (e, elementType, logoId = null) => {
+        e.preventDefault();
+        const startX = e.clientX;
+        const startY = e.clientY;
+        const rect = previewRef.current?.getBoundingClientRect();
+        if (!rect) return;
+
+        const handleMouseMove = (moveEvent) => {
+            const deltaX = (moveEvent.clientX - startX) / rect.width * PREVIEW_WIDTH;
+            const deltaY = (moveEvent.clientY - startY) / rect.height * PREVIEW_HEIGHT;
+
+            if (elementType === 'logo') {
+                setDesign(prev => ({
+                    ...prev,
+                    logo_position: {
+                        x: Math.max(0, Math.min(PREVIEW_WIDTH, prev.logo_position.x + deltaX)),
+                        y: Math.max(0, Math.min(PREVIEW_HEIGHT, prev.logo_position.y + deltaY))
+                    }
+                }));
+            } else if (elementType === 'additional_logo' && logoId) {
+                setDesign(prev => ({
+                    ...prev,
+                    additional_logos: prev.additional_logos.map(logo =>
+                        logo.id === logoId
+                            ? {
+                                ...logo,
+                                position: {
+                                    x: Math.max(0, Math.min(PREVIEW_WIDTH, (logo.position?.x || 0) + deltaX)),
+                                    y: Math.max(0, Math.min(PREVIEW_HEIGHT, (logo.position?.y || 0) + deltaY))
+                                }
+                            }
+                            : logo
+                    )
+                }));
+            }
+        };
+
+        const handleMouseUp = () => {
+            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('mouseup', handleMouseUp);
+        };
+
+        document.addEventListener('mousemove', handleMouseMove);
+        document.addEventListener('mouseup', handleMouseUp);
     };
 
     const handleSaveDesign = async () => {
