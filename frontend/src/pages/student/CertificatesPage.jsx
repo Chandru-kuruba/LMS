@@ -371,8 +371,8 @@ export default function CertificatesPage() {
                         </div>
                         <div class="signature-box">
                             <div class="signature">Authorized</div>
-                            <div class="signature-name">Chand Web Technology</div>
-                            <div class="signature-title">MSME & ISO Certified</div>
+                            <div class="signature-name">Chand Web Technology Pvt Ltd</div>
+                            <div class="signature-title">CIN: U62012KA2025PTC201894</div>
                         </div>
                     </div>
                     
