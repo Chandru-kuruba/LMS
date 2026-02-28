@@ -130,17 +130,17 @@ const defaultGlobalDesign = {
     cert_id_font_color: "#64748B",
     show_cert_id: true,
     
-    // Main Logo settings - PROMINENT SIZE (200px width default)
-    logo_position: { x: 180, y: 70 },
-    logo_size: { width: 300, height: 120 },
+    // Main Logo settings - PROMINENT SIZE (400px width default)
+    logo_position: { x: 200, y: 80 },
+    logo_size: { width: 400, height: 160 },
     show_logo: true,
     logo_url: COMPANY_LOGO,
     logo_maintain_aspect_ratio: true,
     
-    // Additional logos - Certification badges
+    // Additional logos - Certification badges - INCREASED SIZE
     additional_logos: [
-        { id: "msme", url: MSME_LOGO, position: { x: 120, y: 760 }, size: { width: 100, height: 60 }, show: true },
-        { id: "iso", url: ISO_LOGO, position: { x: 250, y: 760 }, size: { width: 100, height: 60 }, show: true }
+        { id: "msme", url: MSME_LOGO, position: { x: 140, y: 750 }, size: { width: 140, height: 140 }, show: true },
+        { id: "iso", url: ISO_LOGO, position: { x: 300, y: 750 }, size: { width: 140, height: 140 }, show: true }
     ],
     
     // QR Code settings - Bottom right
