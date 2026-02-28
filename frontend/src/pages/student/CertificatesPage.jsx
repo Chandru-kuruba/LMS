@@ -189,24 +189,25 @@ export default function CertificatesPage() {
                         margin-bottom: 8mm;
                     }
                     
-                    /* LARGER LOGO - 200px width equivalent in mm */
+                    /* LARGER LOGO - 80mm width */
                     .company-logo {
-                        width: 65mm;
+                        width: 80mm;
                         height: auto;
-                        max-height: 25mm;
+                        max-height: 35mm;
                         object-fit: contain;
                     }
                     
                     .cert-logos {
                         display: flex;
-                        gap: 5mm;
+                        gap: 8mm;
                         align-items: center;
                     }
                     
                     .cert-logo {
-                        height: 18mm;
-                        width: auto;
+                        height: 28mm;
+                        width: 28mm;
                         object-fit: contain;
+                        border-radius: 50%;
                     }
                     
                     .main-content {
