@@ -393,7 +393,7 @@ export default function CertificatesPage() {
         if (navigator.share) {
             navigator.share({
                 title: `Certificate - ${certificate.course_title}`,
-                text: `I earned a certificate in ${certificate.course_title} from Chand Web Technology!`,
+                text: `I earned a certificate in ${certificate.course_title} from Chand Web Technology Pvt Ltd!`,
                 url: verifyUrl
             });
         } else {
