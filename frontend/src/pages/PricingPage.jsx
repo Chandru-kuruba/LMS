@@ -151,7 +151,7 @@ export default function PricingPage() {
                                 <div className="text-center mb-8">
                                     <div className="flex items-baseline justify-center">
                                         <span className="text-4xl font-bold text-white">
-                                            ${plan.price}
+                                            ₹{plan.price}
                                         </span>
                                         {plan.period && (
                                             <span className="text-slate-400 ml-2">/{plan.period}</span>
