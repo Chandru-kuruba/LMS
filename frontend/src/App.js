@@ -90,6 +90,8 @@ function App() {
                         <Route path="/terms-of-service" element={<DynamicPage />} />
                         <Route path="/refund-policy" element={<DynamicPage />} />
                         <Route path="/careers" element={<DynamicPage />} />
+                        <Route path="/verify" element={<VerifyCertificatePage />} />
+                        <Route path="/verify/:certId" element={<VerifyCertificatePage />} />
                     </Route>
 
                     {/* Auth Routes */}
