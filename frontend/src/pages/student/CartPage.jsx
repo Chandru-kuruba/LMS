@@ -137,7 +137,7 @@ export default function CartPage() {
                             <div className="space-y-4 mb-6">
                                 <div className="flex justify-between text-slate-400">
                                     <span>Subtotal ({items.length} items)</span>
-                                    <span>${total.toFixed(2)}</span>
+                                    <span>₹{total.toFixed(2)}</span>
                                 </div>
                                 <div className="flex justify-between text-slate-400">
                                     <span>Discount</span>
