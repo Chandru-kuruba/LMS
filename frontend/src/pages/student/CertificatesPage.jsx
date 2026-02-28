@@ -590,7 +590,8 @@ export default function CertificatesPage() {
                     <div>
                         <h3 className="font-semibold text-white mb-2">About Your Certificates</h3>
                         <p className="text-slate-400 text-sm">
-                            All certificates are issued by Chand Web Technology, an MSME registered and ISO 9001:2015 certified company.
+                            All certificates are issued by Chand Web Technology Private Limited (CIN: U62012KA2025PTC201894), 
+                            an MSME registered and ISO 9001:2015 certified company based in Bangalore, Karnataka.
                             Each certificate has a unique ID that can be verified online.
                         </p>
                     </div>
