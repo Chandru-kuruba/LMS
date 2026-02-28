@@ -58,76 +58,87 @@ const fontOptions = [
 ];
 
 const defaultGlobalDesign = {
+    // Certificate dimensions - A4 Landscape (297mm x 210mm)
+    // At 96 DPI: 1123px x 794px, for better quality we use 1190px x 842px
+    certificate_width: 1190,
+    certificate_height: 842,
+    
     // Background
     background_color: "#0d0d1a",
     background_image: "",
     border_color: "#ca8a04",
     border_width: 4,
     
+    // Margins (in pixels)
+    margin_top: 40,
+    margin_bottom: 40,
+    margin_left: 50,
+    margin_right: 50,
+    
     // Header section
     header_text: "CERTIFICATE OF COMPLETION",
-    header_position: { x: 550, y: 120 },
-    header_font_size: 14,
+    header_position: { x: 595, y: 140 },
+    header_font_size: 18,
     header_color: "#ca8a04",
-    header_letter_spacing: 0.3,
+    header_letter_spacing: 0.4,
     
     // Subheader
     subheader_text: "This is to certify that",
-    subheader_position: { x: 550, y: 280 },
-    subheader_font_size: 14,
+    subheader_position: { x: 595, y: 300 },
+    subheader_font_size: 16,
     subheader_color: "#94A3B8",
     
     // Name settings
-    name_position: { x: 550, y: 350 },
+    name_position: { x: 595, y: 380 },
     name_font_family: "Great Vibes",
-    name_font_size: 52,
+    name_font_size: 60,
     name_font_color: "#ffd700",
     
     // Course text
     course_prefix: "has successfully completed",
-    course_prefix_position: { x: 550, y: 400 },
-    course_prefix_font_size: 12,
+    course_prefix_position: { x: 595, y: 440 },
+    course_prefix_font_size: 14,
     course_prefix_color: "#64748B",
     
     // Course title settings
-    course_position: { x: 550, y: 440 },
+    course_position: { x: 595, y: 490 },
     course_font_family: "Outfit",
-    course_font_size: 24,
+    course_font_size: 28,
     course_font_color: "#94A3B8",
     show_course: true,
     
     // Date settings
-    date_position: { x: 550, y: 520 },
-    date_font_size: 14,
+    date_position: { x: 595, y: 580 },
+    date_font_size: 16,
     date_font_color: "#94A3B8",
     date_format: "MMMM DD, YYYY",
     show_date: true,
     
     // Certificate ID settings
-    cert_id_position: { x: 550, y: 700 },
-    cert_id_font_size: 10,
+    cert_id_position: { x: 595, y: 780 },
+    cert_id_font_size: 11,
     cert_id_font_color: "#64748B",
     show_cert_id: true,
     
-    // Main Logo settings
-    logo_position: { x: 550, y: 60 },
-    logo_size: { width: 180, height: 60 },
+    // Main Logo settings - INCREASED SIZE
+    logo_position: { x: 150, y: 70 },
+    logo_size: { width: 250, height: 100 },
     show_logo: true,
     logo_url: COMPANY_LOGO,
     
-    // Additional logos
+    // Additional logos - INCREASED SIZE
     additional_logos: [
-        { id: "msme", url: MSME_LOGO, position: { x: 100, y: 680 }, size: { width: 60, height: 40 }, show: true },
-        { id: "iso", url: ISO_LOGO, position: { x: 180, y: 680 }, size: { width: 60, height: 40 }, show: true }
+        { id: "msme", url: MSME_LOGO, position: { x: 150, y: 760 }, size: { width: 80, height: 50 }, show: true },
+        { id: "iso", url: ISO_LOGO, position: { x: 260, y: 760 }, size: { width: 80, height: 50 }, show: true }
     ],
     
     // QR Code settings
-    qr_position: { x: 1000, y: 650 },
-    qr_size: 80,
+    qr_position: { x: 1080, y: 720 },
+    qr_size: 100,
     show_qr: true,
     
     // Signature settings
-    signature_position: { x: 550, y: 580 },
+    signature_position: { x: 595, y: 650 },
     signature_name: "Chandru H",
     signature_title: "Founder & CEO",
     signature_font_family: "Great Vibes",
@@ -136,7 +147,7 @@ const defaultGlobalDesign = {
     // Decorative corners
     show_corners: true,
     corner_color: "#ca8a04",
-    corner_size: 60
+    corner_size: 70
 };
 
 export default function CertificateDesignPage() {
