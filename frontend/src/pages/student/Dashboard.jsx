@@ -235,20 +235,20 @@ export default function StudentDashboard() {
                                 <div className="text-center mb-6">
                                     <p className="text-slate-400 text-sm mb-1">Total Earnings</p>
                                     <p className="font-outfit text-4xl font-bold gradient-text">
-                                        ${referralStats?.total_earnings?.toFixed(2) || "0.00"}
+                                        ₹{referralStats?.total_earnings?.toFixed(2) || "0.00"}
                                     </p>
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-4 mb-6">
                                     <div className="glass-light rounded-lg p-3 text-center">
                                         <p className="text-lg font-bold text-yellow-400">
-                                            ${referralStats?.pending_earnings?.toFixed(2) || "0.00"}
+                                            ₹{referralStats?.pending_earnings?.toFixed(2) || "0.00"}
                                         </p>
                                         <p className="text-xs text-slate-500">Pending</p>
                                     </div>
                                     <div className="glass-light rounded-lg p-3 text-center">
                                         <p className="text-lg font-bold text-green-400">
-                                            ${referralStats?.available_earnings?.toFixed(2) || "0.00"}
+                                            ₹{referralStats?.available_earnings?.toFixed(2) || "0.00"}
                                         </p>
                                         <p className="text-xs text-slate-500">Available</p>
                                     </div>
