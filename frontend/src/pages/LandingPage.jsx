@@ -373,15 +373,15 @@ export default function LandingPage() {
                                                 {course.discount_price ? (
                                                     <>
                                                         <span className="text-slate-500 line-through text-sm mr-2">
-                                                            ${course.price}
+                                                            ₹{course.price}
                                                         </span>
                                                         <span className="text-xl font-bold text-purple-400">
-                                                            ${course.discount_price}
+                                                            ₹{course.discount_price}
                                                         </span>
                                                     </>
                                                 ) : (
                                                     <span className="text-xl font-bold text-purple-400">
-                                                        ${course.price}
+                                                        ₹{course.price}
                                                     </span>
                                                 )}
                                             </div>
