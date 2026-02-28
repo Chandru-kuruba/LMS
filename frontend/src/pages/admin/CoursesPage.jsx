@@ -149,7 +149,7 @@ export default function AdminCoursesPage() {
                     <p className="text-slate-400">Create and manage courses</p>
                 </div>
 
-                <Dialog>
+                <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
                     <DialogTrigger asChild>
                         <Button className="btn-primary" data-testid="create-course-btn">
                             <Plus className="w-4 h-4 mr-2" />
