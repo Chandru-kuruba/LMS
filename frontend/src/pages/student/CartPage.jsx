@@ -146,7 +146,7 @@ export default function CartPage() {
                                 <hr className="border-white/10" />
                                 <div className="flex justify-between text-white font-semibold text-lg">
                                     <span>Total</span>
-                                    <span className="text-purple-400">${total.toFixed(2)}</span>
+                                    <span className="text-purple-400">₹{total.toFixed(2)}</span>
                                 </div>
                             </div>
 
