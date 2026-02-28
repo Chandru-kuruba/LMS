@@ -46,6 +46,7 @@ export default function AdminCoursesPage() {
     const [courses, setCourses] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isCreating, setIsCreating] = useState(false);
+    const [showCreateDialog, setShowCreateDialog] = useState(false);
     const [newCourse, setNewCourse] = useState({
         title: "",
         description: "",
