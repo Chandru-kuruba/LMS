@@ -3421,14 +3421,57 @@ async def admin_search_certificate(certificate_id: str, current_user: dict = Dep
 
 @api_router.put("/admin/certificates/{certificate_id}")
 async def admin_update_certificate(certificate_id: str, data: dict, current_user: dict = Depends(get_admin_user)):
-    """Update certificate details (admin only)"""
+    """Update certificate details and layout (admin only)"""
     update_data = {}
+    
+    # Basic certificate info
     if "name_on_certificate" in data:
         update_data["name_on_certificate"] = data["name_on_certificate"]
     if "course_title" in data:
         update_data["course_title"] = data["course_title"]
     if "issue_date" in data:
         update_data["issue_date"] = data["issue_date"]
+    
+    # Layout settings - positions
+    layout_fields = [
+        "name_position", "course_position", "date_position", "cert_id_position",
+        "logo_position", "qr_position", "signature_position",
+        "logo_size", "qr_size"
+    ]
+    for field in layout_fields:
+        if field in data:
+            update_data[f"layout.{field}"] = data[field]
+    
+    # Layout settings - fonts and colors
+    font_fields = [
+        "name_font_family", "name_font_size", "name_font_color",
+        "course_font_family", "course_font_size", "course_font_color",
+        "date_font_size", "date_font_color",
+        "cert_id_font_size", "cert_id_font_color"
+    ]
+    for field in font_fields:
+        if field in data:
+            update_data[f"layout.{field}"] = data[field]
+    
+    # Layout settings - visibility toggles
+    visibility_fields = ["show_logo", "show_qr", "show_date", "show_cert_id", "show_signature", "show_course"]
+    for field in visibility_fields:
+        if field in data:
+            update_data[f"layout.{field}"] = data[field]
+    
+    # Signature settings
+    if "signature_name" in data:
+        update_data["layout.signature_name"] = data["signature_name"]
+    if "signature_title" in data:
+        update_data["layout.signature_title"] = data["signature_title"]
+    
+    # Background image
+    if "background_image" in data:
+        update_data["layout.background_image"] = data["background_image"]
+    
+    # Logo image
+    if "logo_image" in data:
+        update_data["layout.logo_image"] = data["logo_image"]
     
     update_data["updated_at"] = datetime.now(timezone.utc).isoformat()
     update_data["updated_by"] = current_user["id"]
