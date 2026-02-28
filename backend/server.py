@@ -1857,7 +1857,7 @@ async def request_withdrawal(
         raise HTTPException(status_code=400, detail="Insufficient wallet balance")
     
     if data.amount < 10:
-        raise HTTPException(status_code=400, detail="Minimum withdrawal amount is $10")
+        raise HTTPException(status_code=400, detail="Minimum withdrawal amount is ₹10")
     
     # Create withdrawal request
     withdrawal = {
