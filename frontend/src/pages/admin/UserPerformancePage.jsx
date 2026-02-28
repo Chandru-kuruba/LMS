@@ -175,7 +175,7 @@ export default function AdminUserPerformancePage() {
                         <div>
                             <p className="text-sm text-slate-400">Total Spent</p>
                             <p className="font-outfit text-2xl font-bold text-white">
-                                ${total_spent?.toFixed(2) || "0.00"}
+                                ₹{total_spent?.toFixed(2) || "0.00"}
                             </p>
                         </div>
                     </div>
