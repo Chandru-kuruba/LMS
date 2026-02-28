@@ -57,11 +57,21 @@ const fontOptions = [
     { value: "Times New Roman", label: "Times New Roman (Formal)" }
 ];
 
+// A4 Landscape: 297mm x 210mm
+// At 300 DPI (print quality): 3508px x 2480px
+// We use scaled preview: 1190px x 842px (aspect ratio preserved)
+const A4_LANDSCAPE_WIDTH_MM = 297;
+const A4_LANDSCAPE_HEIGHT_MM = 210;
+const PREVIEW_WIDTH = 1190;
+const PREVIEW_HEIGHT = 842;
+const SCALE_FACTOR = PREVIEW_WIDTH / A4_LANDSCAPE_WIDTH_MM; // ~4 pixels per mm
+
 const defaultGlobalDesign = {
     // Certificate dimensions - A4 Landscape (297mm x 210mm)
-    // At 96 DPI: 1123px x 794px, for better quality we use 1190px x 842px
-    certificate_width: 1190,
-    certificate_height: 842,
+    certificate_width: PREVIEW_WIDTH,
+    certificate_height: PREVIEW_HEIGHT,
+    certificate_width_mm: A4_LANDSCAPE_WIDTH_MM,
+    certificate_height_mm: A4_LANDSCAPE_HEIGHT_MM,
     
     // Background
     background_color: "#0d0d1a",
@@ -77,68 +87,69 @@ const defaultGlobalDesign = {
     
     // Header section
     header_text: "CERTIFICATE OF COMPLETION",
-    header_position: { x: 595, y: 140 },
-    header_font_size: 18,
+    header_position: { x: 595, y: 160 },
+    header_font_size: 22,
     header_color: "#ca8a04",
     header_letter_spacing: 0.4,
     
     // Subheader
     subheader_text: "This is to certify that",
     subheader_position: { x: 595, y: 300 },
-    subheader_font_size: 16,
+    subheader_font_size: 18,
     subheader_color: "#94A3B8",
     
     // Name settings
     name_position: { x: 595, y: 380 },
     name_font_family: "Great Vibes",
-    name_font_size: 60,
+    name_font_size: 72,
     name_font_color: "#ffd700",
     
     // Course text
     course_prefix: "has successfully completed",
-    course_prefix_position: { x: 595, y: 440 },
-    course_prefix_font_size: 14,
+    course_prefix_position: { x: 595, y: 460 },
+    course_prefix_font_size: 16,
     course_prefix_color: "#64748B",
     
     // Course title settings
-    course_position: { x: 595, y: 490 },
+    course_position: { x: 595, y: 520 },
     course_font_family: "Outfit",
-    course_font_size: 28,
+    course_font_size: 32,
     course_font_color: "#94A3B8",
     show_course: true,
     
     // Date settings
-    date_position: { x: 595, y: 580 },
-    date_font_size: 16,
+    date_position: { x: 595, y: 600 },
+    date_font_size: 18,
     date_font_color: "#94A3B8",
     date_format: "MMMM DD, YYYY",
     show_date: true,
     
     // Certificate ID settings
     cert_id_position: { x: 595, y: 780 },
-    cert_id_font_size: 11,
+    cert_id_font_size: 12,
     cert_id_font_color: "#64748B",
     show_cert_id: true,
     
-    // Main Logo settings - INCREASED SIZE
-    logo_position: { x: 150, y: 70 },
-    logo_size: { width: 250, height: 100 },
+    // Main Logo settings - PROMINENT SIZE (200px width default)
+    logo_position: { x: 180, y: 70 },
+    logo_size: { width: 300, height: 120 },
     show_logo: true,
     logo_url: COMPANY_LOGO,
+    logo_maintain_aspect_ratio: true,
     
-    // Additional logos - INCREASED SIZE
+    // Additional logos - Certification badges
     additional_logos: [
-        { id: "msme", url: MSME_LOGO, position: { x: 150, y: 760 }, size: { width: 80, height: 50 }, show: true },
-        { id: "iso", url: ISO_LOGO, position: { x: 260, y: 760 }, size: { width: 80, height: 50 }, show: true }
+        { id: "msme", url: MSME_LOGO, position: { x: 120, y: 760 }, size: { width: 100, height: 60 }, show: true },
+        { id: "iso", url: ISO_LOGO, position: { x: 250, y: 760 }, size: { width: 100, height: 60 }, show: true }
     ],
     
-    // QR Code settings
+    // QR Code settings - Bottom right
     qr_position: { x: 1080, y: 720 },
-    qr_size: 100,
+    qr_size: 110,
     show_qr: true,
     
     // Signature settings
-    signature_position: { x: 595, y: 650 },
+    signature_position: { x: 595, y: 680 },
     signature_name: "Chandru H",
     signature_title: "Founder & CEO",
     signature_font_family: "Great Vibes",
@@ -147,7 +158,7 @@ const defaultGlobalDesign = {
     // Decorative corners
     show_corners: true,
     corner_color: "#ca8a04",
-    corner_size: 70
+    corner_size: 80
 };
 
 export default function CertificateDesignPage() {
