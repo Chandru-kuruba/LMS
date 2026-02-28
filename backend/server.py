@@ -3443,14 +3443,27 @@ async def admin_update_certificate(certificate_id: str, data: dict, current_user
     
     return {"message": "Certificate updated"}
 
-@api_router.post("/admin/certificates/{certificate_id}/unlock-name")
-async def admin_unlock_cert_name(certificate_id: str, current_user: dict = Depends(get_admin_user)):
-    """Unlock certificate name for user editing"""
-    await db.certificates.update_one(
+@api_router.post("/admin/certificates/{certificate_id}/unlock")
+async def admin_unlock_cert(certificate_id: str, current_user: dict = Depends(get_admin_user)):
+    """Unlock certificate for user editing (name, etc.)"""
+    result = await db.certificates.update_one(
         {"certificate_id": certificate_id},
-        {"$set": {"name_locked": False}}
+        {"$set": {"is_locked": False, "name_locked": False}}
     )
-    return {"message": "Name unlocked"}
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Certificate not found")
+    return {"message": "Certificate unlocked - user can now edit their name"}
+
+@api_router.post("/admin/certificates/{certificate_id}/lock")
+async def admin_lock_cert(certificate_id: str, current_user: dict = Depends(get_admin_user)):
+    """Lock certificate to prevent user editing"""
+    result = await db.certificates.update_one(
+        {"certificate_id": certificate_id},
+        {"$set": {"is_locked": True, "name_locked": True}}
+    )
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Certificate not found")
+    return {"message": "Certificate locked - user cannot edit"}
 
 @api_router.put("/certificates/{certificate_id}/update-name")
 async def update_certificate_name(
