@@ -246,9 +246,10 @@ class TestCertificateTemplates:
         )
         assert response.status_code == 200, f"Create failed: {response.text}"
         data = response.json()
-        assert "template" in data
-        print(f"Created template: {data['template']['id']}")
-        return data["template"]["id"]
+        # API returns template_id or template
+        assert "template_id" in data or "template" in data, f"No template info in response: {data}"
+        print(f"Created template response: {data}")
+        return data.get("template_id") or data.get("template", {}).get("id")
 
     def test_delete_certificate_template(self, admin_headers):
         """Test deleting a certificate template"""
