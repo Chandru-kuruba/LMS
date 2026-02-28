@@ -890,18 +890,21 @@ export default function CertificateDesignPage() {
                 <div className="lg:col-span-3 space-y-2">
                     <div className="flex items-center justify-between">
                         <Label className="text-slate-300">Live Preview (A4 Landscape - 297mm × 210mm)</Label>
-                        <span className="text-xs text-purple-400">Global Template</span>
+                        <span className="text-xs text-purple-400">Drag logos to reposition</span>
                     </div>
                     <div 
-                        className="relative w-full rounded-lg overflow-hidden"
+                        ref={previewRef}
+                        className="relative w-full rounded-lg overflow-hidden select-none"
                         style={{
-                            aspectRatio: "1190/842",
+                            aspectRatio: `${PREVIEW_WIDTH}/${PREVIEW_HEIGHT}`,
                             backgroundColor: design.background_color,
                             backgroundImage: design.background_image ? `url(${design.background_image})` : undefined,
                             backgroundSize: 'cover',
                             backgroundPosition: 'center',
                             border: `${design.border_width}px solid ${design.border_color}`
                         }}
+                        onDragOver={handleDragOver}
+                        onDrop={handleDrop}
                     >
                         {/* Decorative corners */}
                         {design.show_corners && (
@@ -913,24 +916,29 @@ export default function CertificateDesignPage() {
                             </>
                         )}
 
-                        {/* Main Logo - LARGER */}
+                        {/* Main Logo - DRAGGABLE & LARGER */}
                         {design.show_logo && (
                             <div 
-                                className="absolute flex items-center justify-center"
+                                className="absolute flex items-center justify-center cursor-move hover:ring-2 hover:ring-purple-500 hover:ring-offset-2 hover:ring-offset-transparent rounded transition-all"
                                 style={{
-                                    left: `${(design.logo_position?.x || 150) / 11.9}%`,
-                                    top: `${(design.logo_position?.y || 70) / 8.42}%`,
+                                    left: `${(design.logo_position?.x || 180) / PREVIEW_WIDTH * 100}%`,
+                                    top: `${(design.logo_position?.y || 70) / PREVIEW_HEIGHT * 100}%`,
                                     transform: 'translate(-50%, -50%)',
                                 }}
+                                draggable
+                                onDragStart={(e) => handleDragStart(e, 'logo')}
+                                onMouseDown={(e) => handleMouseDown(e, 'logo')}
+                                title="Drag to reposition logo"
                             >
                                 <img 
                                     src={design.logo_url || COMPANY_LOGO} 
                                     alt="Logo" 
                                     style={{
-                                        width: `${(design.logo_size?.width || 250) / 4}px`,
-                                        height: `${(design.logo_size?.height || 100) / 4}px`,
+                                        width: `${(design.logo_size?.width || 300) / 4}px`,
+                                        height: `${(design.logo_size?.height || 120) / 4}px`,
                                     }}
-                                    className="object-contain"
+                                    className="object-contain pointer-events-none"
+                                    draggable={false}
                                 />
                             </div>
                         )}
@@ -939,8 +947,8 @@ export default function CertificateDesignPage() {
                         <div 
                             className="absolute text-center whitespace-nowrap"
                             style={{
-                                left: `${(design.header_position?.x || 595) / 11.9}%`,
-                                top: `${(design.header_position?.y || 140) / 8.42}%`,
+                                left: `${(design.header_position?.x || 595) / PREVIEW_WIDTH * 100}%`,
+                                top: `${(design.header_position?.y || 160) / PREVIEW_HEIGHT * 100}%`,
                                 transform: 'translate(-50%, -50%)',
                                 fontSize: `${design.header_font_size / 2.2}px`,
                                 color: design.header_color,
@@ -954,8 +962,8 @@ export default function CertificateDesignPage() {
                         <div 
                             className="absolute text-center"
                             style={{
-                                left: `${(design.subheader_position?.x || 550) / 11}%`,
-                                top: `${(design.subheader_position?.y || 280) / 7.8}%`,
+                                left: `${(design.subheader_position?.x || 595) / PREVIEW_WIDTH * 100}%`,
+                                top: `${(design.subheader_position?.y || 300) / PREVIEW_HEIGHT * 100}%`,
                                 transform: 'translate(-50%, -50%)',
                                 fontSize: `${design.subheader_font_size / 2.5}px`,
                                 color: design.subheader_color
@@ -968,8 +976,8 @@ export default function CertificateDesignPage() {
                         <div 
                             className="absolute text-center whitespace-nowrap"
                             style={{
-                                left: `${(design.name_position?.x || 550) / 11}%`,
-                                top: `${(design.name_position?.y || 350) / 7.8}%`,
+                                left: `${(design.name_position?.x || 595) / PREVIEW_WIDTH * 100}%`,
+                                top: `${(design.name_position?.y || 380) / PREVIEW_HEIGHT * 100}%`,
                                 transform: 'translate(-50%, -50%)',
                                 fontFamily: design.name_font_family,
                                 fontSize: `${design.name_font_size / 3}px`,
@@ -983,8 +991,8 @@ export default function CertificateDesignPage() {
                         <div 
                             className="absolute text-center"
                             style={{
-                                left: `${(design.course_prefix_position?.x || 550) / 11}%`,
-                                top: `${(design.course_prefix_position?.y || 400) / 7.8}%`,
+                                left: `${(design.course_prefix_position?.x || 595) / PREVIEW_WIDTH * 100}%`,
+                                top: `${(design.course_prefix_position?.y || 460) / PREVIEW_HEIGHT * 100}%`,
                                 transform: 'translate(-50%, -50%)',
                                 fontSize: `${design.course_prefix_font_size / 2.5}px`,
                                 color: design.course_prefix_color
@@ -997,8 +1005,8 @@ export default function CertificateDesignPage() {
                         <div 
                             className="absolute text-center"
                             style={{
-                                left: `${(design.course_position?.x || 550) / 11}%`,
-                                top: `${(design.course_position?.y || 440) / 7.8}%`,
+                                left: `${(design.course_position?.x || 595) / PREVIEW_WIDTH * 100}%`,
+                                top: `${(design.course_position?.y || 520) / PREVIEW_HEIGHT * 100}%`,
                                 transform: 'translate(-50%, -50%)',
                                 fontFamily: design.course_font_family,
                                 fontSize: `${design.course_font_size / 3}px`,
@@ -1013,8 +1021,8 @@ export default function CertificateDesignPage() {
                             <div 
                                 className="absolute text-center"
                                 style={{
-                                    left: `${(design.signature_position?.x || 550) / 11}%`,
-                                    top: `${(design.signature_position?.y || 580) / 7.8}%`,
+                                    left: `${(design.signature_position?.x || 595) / PREVIEW_WIDTH * 100}%`,
+                                    top: `${(design.signature_position?.y || 680) / PREVIEW_HEIGHT * 100}%`,
                                     transform: 'translate(-50%, -50%)',
                                 }}
                             >
@@ -1039,8 +1047,8 @@ export default function CertificateDesignPage() {
                             <div 
                                 className="absolute"
                                 style={{
-                                    left: `${(design.date_position?.x || 550) / 11}%`,
-                                    top: `${(design.date_position?.y || 520) / 7.8}%`,
+                                    left: `${(design.date_position?.x || 595) / PREVIEW_WIDTH * 100}%`,
+                                    top: `${(design.date_position?.y || 600) / PREVIEW_HEIGHT * 100}%`,
                                     transform: 'translate(-50%, -50%)',
                                     fontSize: `${design.date_font_size / 3}px`,
                                     color: design.date_font_color
@@ -1055,8 +1063,8 @@ export default function CertificateDesignPage() {
                             <div 
                                 className="absolute font-mono"
                                 style={{
-                                    left: `${(design.cert_id_position?.x || 550) / 11}%`,
-                                    top: `${(design.cert_id_position?.y || 700) / 7.8}%`,
+                                    left: `${(design.cert_id_position?.x || 595) / PREVIEW_WIDTH * 100}%`,
+                                    top: `${(design.cert_id_position?.y || 780) / PREVIEW_HEIGHT * 100}%`,
                                     transform: 'translate(-50%, -50%)',
                                     fontSize: `${design.cert_id_font_size / 3}px`,
                                     color: design.cert_id_font_color
@@ -1071,8 +1079,8 @@ export default function CertificateDesignPage() {
                             <div 
                                 className="absolute bg-white/90 rounded p-0.5 flex items-center justify-center"
                                 style={{
-                                    left: `${(design.qr_position?.x || 1000) / 11}%`,
-                                    top: `${(design.qr_position?.y || 650) / 7.8}%`,
+                                    left: `${(design.qr_position?.x || 1080) / PREVIEW_WIDTH * 100}%`,
+                                    top: `${(design.qr_position?.y || 720) / PREVIEW_HEIGHT * 100}%`,
                                     transform: 'translate(-50%, -50%)',
                                     width: `${design.qr_size / 3.5}px`,
                                     height: `${design.qr_size / 3.5}px`,
@@ -1082,33 +1090,43 @@ export default function CertificateDesignPage() {
                             </div>
                         )}
 
-                        {/* Additional Logos */}
+                        {/* Additional Logos - DRAGGABLE */}
                         {design.additional_logos?.filter(l => l.show).map((logo) => (
                             <div 
                                 key={logo.id}
-                                className="absolute"
+                                className="absolute cursor-move hover:ring-2 hover:ring-green-500 hover:ring-offset-1 hover:ring-offset-transparent rounded transition-all"
                                 style={{
-                                    left: `${(logo.position?.x || 100) / 11}%`,
-                                    top: `${(logo.position?.y || 680) / 7.8}%`,
+                                    left: `${(logo.position?.x || 100) / PREVIEW_WIDTH * 100}%`,
+                                    top: `${(logo.position?.y || 760) / PREVIEW_HEIGHT * 100}%`,
                                     transform: 'translate(-50%, -50%)',
                                 }}
+                                draggable
+                                onDragStart={(e) => handleDragStart(e, 'additional_logo', logo.id)}
+                                onMouseDown={(e) => handleMouseDown(e, 'additional_logo', logo.id)}
+                                title={`Drag to reposition ${logo.id}`}
                             >
                                 <img 
                                     src={logo.url} 
                                     alt="Logo" 
                                     style={{
-                                        width: `${(logo.size?.width || 60) / 5}px`,
-                                        height: `${(logo.size?.height || 40) / 5}px`,
+                                        width: `${(logo.size?.width || 100) / 5}px`,
+                                        height: `${(logo.size?.height || 60) / 5}px`,
                                     }}
-                                    className="object-contain opacity-70"
+                                    className="object-contain opacity-80 pointer-events-none"
+                                    draggable={false}
                                 />
                             </div>
                         ))}
                     </div>
 
-                    <p className="text-xs text-slate-500 text-center">
-                        This is the master template. All certificates will use this design unless individually edited.
-                    </p>
+                    <div className="flex items-center justify-between text-xs">
+                        <p className="text-slate-500">
+                            This is the master template. All certificates will use this design.
+                        </p>
+                        <p className="text-purple-400">
+                            Dimensions: 297mm × 210mm (A4 Landscape)
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
