@@ -595,7 +595,7 @@ def send_withdrawal_notification_email(to_email: str, user_name: str, amount: fl
             <h1>Withdrawal {status.title()}</h1>
             <p>Hi {user_name},</p>
             <p>Your withdrawal request has been {status_text}.</p>
-            <p class="amount">${amount:.2f}</p>
+            <p class="amount">₹{amount:.2f}</p>
             {"<p>The amount will be transferred to your bank account within 3-5 business days.</p>" if status == "approved" else "<p>Please contact support if you have any questions.</p>"}
             <div class="footer">
                 <p>&copy; 2024 LUMINA. All rights reserved.</p>
