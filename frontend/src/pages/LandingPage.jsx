@@ -139,15 +139,15 @@ export default function LandingPage() {
                             {/* Stats */}
                             <motion.div variants={fadeInUp} className="mt-12 flex gap-8 sm:gap-12">
                                 <div>
-                                    <p className="font-outfit text-3xl sm:text-4xl font-bold text-white">50K+</p>
+                                    <p className="font-outfit text-3xl sm:text-4xl font-bold text-white">{stats.students || "50K+"}</p>
                                     <p className="text-slate-500 text-sm">Students</p>
                                 </div>
                                 <div>
-                                    <p className="font-outfit text-3xl sm:text-4xl font-bold text-white">200+</p>
+                                    <p className="font-outfit text-3xl sm:text-4xl font-bold text-white">{stats.courses || "200+"}</p>
                                     <p className="text-slate-500 text-sm">Courses</p>
                                 </div>
                                 <div>
-                                    <p className="font-outfit text-3xl sm:text-4xl font-bold text-white">50+</p>
+                                    <p className="font-outfit text-3xl sm:text-4xl font-bold text-white">{stats.instructors || "50+"}</p>
                                     <p className="text-slate-500 text-sm">Instructors</p>
                                 </div>
                             </motion.div>
