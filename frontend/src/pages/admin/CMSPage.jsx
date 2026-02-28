@@ -31,49 +31,65 @@ const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 const defaultSections = {
     home: {
         hero: {
-            title: "Master New Skills with LUMINA",
-            subtitle: "Join thousands of students learning from industry experts",
-            cta_text: "Get Started",
-            cta_link: "/courses",
-            image_url: ""
+            title: "Master New Skills with",
+            brand: "Chand Web Technology",
+            subtitle: "Join thousands of students learning from industry experts. Get access to premium courses and earn while you learn through our affiliate program.",
+            badge: "#1 Online Learning Platform",
+            cta_primary: "Browse Courses",
+            cta_secondary: "Get Started Free",
+            background_image: ""
         },
-        features: [
-            { icon: "BookOpen", title: "Expert Courses", description: "Learn from industry professionals" },
-            { icon: "Award", title: "Certificates", description: "Earn verified certificates" },
-            { icon: "Users", title: "Community", description: "Join our learning community" }
-        ],
         stats: {
-            students: "10,000+",
-            courses: "100+",
+            students: "50K+",
+            courses: "200+",
             instructors: "50+"
+        },
+        features: {
+            title: "Why Choose Us",
+            subtitle: "Experience the best in online learning",
+            items: [
+                { icon: "Award", title: "Certified Courses", description: "Get industry-recognized certificates" },
+                { icon: "Users", title: "Expert Instructors", description: "Learn from the best in the field" },
+                { icon: "DollarSign", title: "Affiliate Program", description: "Earn 20% commission on referrals" },
+                { icon: "Clock", title: "Lifetime Access", description: "Access courses anytime, anywhere" }
+            ]
+        },
+        affiliate: {
+            title: "Earn While You Learn",
+            subtitle: "Join our affiliate program and earn 20% commission on every successful referral. Lifetime earnings!",
+            cta: "Start Earning Now"
         }
     },
     about: {
-        title: "About LUMINA",
-        description: "LUMINA is an online learning platform dedicated to helping you grow your skills and advance your career.",
+        title: "About Us",
+        description: "Chand Web Technology is an MSME registered and ISO 9001:2015 certified company dedicated to providing quality online education.",
         mission: "Empowering learners worldwide with accessible, high-quality education.",
         vision: "To be the leading platform for professional skill development.",
-        team: []
+        founder: {
+            name: "Chandru H",
+            title: "Founder & Director",
+            bio: "Passionate about education and technology"
+        }
     },
     contact: {
         title: "Contact Us",
         description: "We'd love to hear from you",
-        email: "support@lumina.com",
-        phone: "",
-        address: "",
+        email: "support@chandwebtechnology.com",
+        phone: "+91 1234567890",
+        address: "India",
         form_enabled: true
     },
     footer: {
-        copyright: "© 2024 LUMINA. All rights reserved.",
-        company_links: [
-            { label: "About Us", href: "/about" },
-            { label: "Contact", href: "/contact" },
-            { label: "Careers", href: "#" }
+        company: {
+            name: "Chand Web Technology",
+            description: "Empowering learners worldwide with quality education",
+            logo: "https://customer-assets.emergentagent.com/job_lms-stabilize-1/artifacts/8733xudx_Untitled_design-removebg-preview.png"
+        },
+        certifications: [
+            { name: "MSME", logo: "https://customer-assets.emergentagent.com/job_lms-stabilize-1/artifacts/pmw7was4_msme.png" },
+            { name: "ISO 9001:2015", logo: "https://customer-assets.emergentagent.com/job_lms-stabilize-1/artifacts/yn7tm6lm_iso.png" }
         ],
-        legal_links: [
-            { label: "Privacy Policy", href: "#" },
-            { label: "Terms of Service", href: "#" }
-        ],
+        copyright: "© 2026 Chand Web Technology. All rights reserved.",
         social: {
             twitter: "",
             facebook: "",
@@ -82,20 +98,23 @@ const defaultSections = {
         }
     },
     navbar: {
-        logo_text: "LUMINA",
-        logo_url: "",
+        logo: {
+            text: "Chand Web Technology",
+            image: "https://customer-assets.emergentagent.com/job_lms-stabilize-1/artifacts/8733xudx_Untitled_design-removebg-preview.png"
+        },
         links: [
-            { label: "Home", href: "/" },
-            { label: "Courses", href: "/courses" },
-            { label: "About", href: "/about" },
-            { label: "Contact", href: "/contact" }
-        ]
+            { text: "Courses", url: "/courses" },
+            { text: "Pricing", url: "/#pricing" },
+            { text: "FAQ", url: "/#faq" },
+            { text: "Contact", url: "/page/contact" }
+        ],
+        cta: { text: "Get Started", url: "/register" }
     },
     testimonials: [
         {
             name: "John Doe",
             role: "Software Developer",
-            content: "LUMINA helped me transition into tech. The courses are comprehensive and practical.",
+            content: "Amazing courses! Helped me land my dream job.",
             avatar: "",
             rating: 5
         }
