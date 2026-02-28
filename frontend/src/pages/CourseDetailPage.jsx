@@ -239,10 +239,10 @@ export default function CourseDetailPage() {
                                     {course.discount_price ? (
                                         <div className="flex items-center gap-3">
                                             <span className="font-outfit text-4xl font-bold text-white">
-                                                ${course.discount_price}
+                                                ₹{course.discount_price}
                                             </span>
                                             <span className="text-xl text-slate-500 line-through">
-                                                ${course.price}
+                                                ₹{course.price}
                                             </span>
                                             <span className="px-2 py-1 rounded bg-green-500/20 text-green-400 text-sm font-medium">
                                                 {Math.round((1 - course.discount_price / course.price) * 100)}% OFF
@@ -250,7 +250,7 @@ export default function CourseDetailPage() {
                                         </div>
                                     ) : (
                                         <span className="font-outfit text-4xl font-bold text-white">
-                                            ${course.price}
+                                            ₹{course.price}
                                         </span>
                                     )}
                                 </div>
