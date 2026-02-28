@@ -487,6 +487,27 @@ export default function CertificatesPage() {
                                     </p>
                                 </div>
 
+                                {/* Edit Name Button - Only shown when unlocked */}
+                                {certificate.is_locked === false && (
+                                    <div className="mb-4 p-3 bg-green-500/10 border border-green-500/30 rounded-lg">
+                                        <div className="flex items-center gap-2 text-green-400 mb-2">
+                                            <Unlock className="w-4 h-4" />
+                                            <span className="text-sm font-medium">Name Editing Enabled</span>
+                                        </div>
+                                        <p className="text-xs text-slate-400 mb-2">
+                                            Admin has unlocked this certificate. You can edit your name once.
+                                        </p>
+                                        <Button
+                                            size="sm"
+                                            className="w-full bg-green-600 hover:bg-green-500"
+                                            onClick={() => openEditDialog(certificate)}
+                                        >
+                                            <Edit className="w-4 h-4 mr-2" />
+                                            Edit My Name
+                                        </Button>
+                                    </div>
+                                )}
+
                                 <div className="flex gap-2">
                                     <Button
                                         className="flex-1 bg-yellow-600 hover:bg-yellow-500 text-white"
@@ -509,6 +530,59 @@ export default function CertificatesPage() {
                     ))}
                 </div>
             )}
+
+            {/* Edit Name Dialog */}
+            <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+                <DialogContent className="glass-heavy border-green-500/30">
+                    <DialogHeader>
+                        <DialogTitle className="text-white flex items-center gap-2">
+                            <Edit className="w-5 h-5 text-green-400" />
+                            Edit Certificate Name
+                        </DialogTitle>
+                    </DialogHeader>
+
+                    {editingCert && (
+                        <div className="space-y-4 py-4">
+                            <div className="glass-light rounded-lg p-3">
+                                <p className="text-xs text-slate-500">Certificate</p>
+                                <p className="text-white font-medium">{editingCert.course_title}</p>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-slate-300 text-sm">Your Name on Certificate</label>
+                                <Input
+                                    value={newName}
+                                    onChange={(e) => setNewName(e.target.value)}
+                                    placeholder="Enter your full name"
+                                    className="input-neon"
+                                />
+                                <p className="text-xs text-slate-500">
+                                    This is how your name will appear on the certificate. 
+                                    After saving, the certificate will be locked again.
+                                </p>
+                            </div>
+
+                            <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
+                                <Button variant="outline" onClick={() => setShowEditDialog(false)}>
+                                    Cancel
+                                </Button>
+                                <Button 
+                                    className="bg-green-600 hover:bg-green-500" 
+                                    onClick={handleUpdateName}
+                                    disabled={isSaving}
+                                >
+                                    {isSaving ? "Saving..." : (
+                                        <>
+                                            <Save className="w-4 h-4 mr-2" />
+                                            Save Name
+                                        </>
+                                    )}
+                                </Button>
+                            </div>
+                        </div>
+                    )}
+                </DialogContent>
+            </Dialog>
 
             {/* Company Info */}
             <div className="glass-medium rounded-xl p-6">
