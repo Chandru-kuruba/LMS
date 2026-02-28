@@ -1,6 +1,7 @@
 import { Outlet, Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import axios from "axios";
 import { 
     BookOpen, 
     ShoppingCart, 
@@ -17,12 +18,38 @@ import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/store/authStore";
 import { useCartStore } from "@/store/cartStore";
 
+const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+
+// Company logos
+const COMPANY_LOGO = "https://customer-assets.emergentagent.com/job_lms-stabilize-1/artifacts/8733xudx_Untitled_design-removebg-preview.png";
+const MSME_LOGO = "https://customer-assets.emergentagent.com/job_lms-stabilize-1/artifacts/pmw7was4_msme.png";
+const ISO_LOGO = "https://customer-assets.emergentagent.com/job_lms-stabilize-1/artifacts/yn7tm6lm_iso.png";
+
 export const MainLayout = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
+    const [cms, setCms] = useState(null);
     const { isAuthenticated, user, logout } = useAuthStore();
     const { items: cartItems } = useCartStore();
     const navigate = useNavigate();
+
+    useEffect(() => {
+        const fetchCms = async () => {
+            try {
+                const response = await axios.get(`${API}/cms`);
+                setCms(response.data.sections || {});
+            } catch (error) {
+                console.error("Failed to fetch CMS:", error);
+            }
+        };
+        fetchCms();
+    }, []);
+
+    const navbarCms = cms?.navbar || {};
+    const footerCms = cms?.footer || {};
+    
+    const logoText = navbarCms.logo?.text || "Chand Web Technology";
+    const logoImage = navbarCms.logo?.image || COMPANY_LOGO;
 
     const navLinks = [
         { label: "Courses", href: "/courses", icon: BookOpen },
@@ -37,11 +64,9 @@ export const MainLayout = () => {
                     <div className="flex items-center justify-between h-16 lg:h-20">
                         {/* Logo */}
                         <Link to="/" className="flex items-center gap-2 group">
-                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-cyan-500 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
-                                <Zap className="w-5 h-5 text-white" />
-                            </div>
-                            <span className="font-outfit text-xl font-bold gradient-text hidden sm:block">
-                                LUMINA
+                            <img src={logoImage} alt="Logo" className="h-10 w-auto object-contain" />
+                            <span className="font-outfit text-lg font-bold gradient-text hidden sm:block">
+                                {logoText}
                             </span>
                         </Link>
 
