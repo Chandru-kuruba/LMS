@@ -104,6 +104,7 @@ export default function AdminCoursesPage() {
                 level: "beginner",
                 is_published: false
             });
+            setShowCreateDialog(false);
             fetchCourses();
         } catch (error) {
             toast.error("Failed to create course");
