@@ -261,7 +261,7 @@ export default function AdminDashboard() {
                                             {order.user_id?.slice(0, 8)}...
                                         </td>
                                         <td className="py-3 px-4 text-green-400 font-semibold">
-                                            ${order.total?.toFixed(2)}
+                                            ₹{order.total?.toFixed(2)}
                                         </td>
                                         <td className="py-3 px-4">
                                             <span className="px-2 py-1 rounded-full text-xs bg-green-500/20 text-green-400">
