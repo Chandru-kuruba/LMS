@@ -205,7 +205,7 @@ export default function AdminUsersPage() {
                                             )}
                                         </td>
                                         <td className="p-4 text-slate-400">
-                                            ${user.wallet_balance?.toFixed(2) || "0.00"}
+                                            ₹{user.wallet_balance?.toFixed(2) || "0.00"}
                                         </td>
                                         <td className="p-4 text-slate-500 text-sm">
                                             {new Date(user.created_at).toLocaleDateString()}
