@@ -115,11 +115,11 @@ export default function OrdersPage() {
                                 </div>
                                 <div className="text-right">
                                     <p className="font-outfit text-xl font-bold text-purple-400">
-                                        ${order.total?.toFixed(2)}
+                                        ₹{order.total?.toFixed(2)}
                                     </p>
                                     {order.discount > 0 && (
                                         <p className="text-sm text-green-400">
-                                            Saved ${order.discount?.toFixed(2)}
+                                            Saved ₹{order.discount?.toFixed(2)}
                                         </p>
                                     )}
                                 </div>
