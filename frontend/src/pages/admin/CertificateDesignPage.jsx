@@ -656,27 +656,27 @@ export default function CertificateDesignPage() {
                                         </div>
                                         <div className="grid grid-cols-2 gap-3">
                                             <div>
-                                                <Label className="text-xs text-slate-500">Width: {design.logo_size?.width || 180}px</Label>
+                                                <Label className="text-xs text-slate-500">Width: {design.logo_size?.width || 250}px</Label>
                                                 <Slider
-                                                    value={[design.logo_size?.width || 180]}
+                                                    value={[design.logo_size?.width || 250]}
                                                     onValueChange={([v]) => setDesign({
                                                         ...design,
                                                         logo_size: { ...design.logo_size, width: v }
                                                     })}
-                                                    min={60}
-                                                    max={400}
+                                                    min={80}
+                                                    max={500}
                                                 />
                                             </div>
                                             <div>
-                                                <Label className="text-xs text-slate-500">Height: {design.logo_size?.height || 60}px</Label>
+                                                <Label className="text-xs text-slate-500">Height: {design.logo_size?.height || 100}px</Label>
                                                 <Slider
-                                                    value={[design.logo_size?.height || 60]}
+                                                    value={[design.logo_size?.height || 100]}
                                                     onValueChange={([v]) => setDesign({
                                                         ...design,
                                                         logo_size: { ...design.logo_size, height: v }
                                                     })}
-                                                    min={30}
-                                                    max={150}
+                                                    min={40}
+                                                    max={200}
                                                 />
                                             </div>
                                         </div>
