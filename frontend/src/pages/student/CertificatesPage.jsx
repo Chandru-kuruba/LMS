@@ -113,7 +113,14 @@ export default function CertificatesPage() {
                 <title>Certificate - ${certificate.course_title}</title>
                 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Great+Vibes&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
                 <style>
-                    @page { size: landscape; margin: 0; }
+                    @page { 
+                        size: 297mm 210mm landscape;
+                        margin: 0; 
+                    }
+                    @media print {
+                        body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                        .certificate { width: 297mm !important; height: 210mm !important; }
+                    }
                     * { margin: 0; padding: 0; box-sizing: border-box; }
                     
                     body {
@@ -123,16 +130,16 @@ export default function CertificatesPage() {
                         display: flex;
                         align-items: center;
                         justify-content: center;
-                        padding: 20px;
+                        padding: 0;
                     }
                     
                     .certificate {
-                        width: 1100px;
-                        height: 780px;
+                        width: 297mm;
+                        height: 210mm;
                         background: linear-gradient(145deg, #1a1a2e 0%, #0d0d1a 50%, #1a1a2e 100%);
                         border: 4px solid;
                         border-image: linear-gradient(135deg, #ffd700, #ff8c00, #ffd700) 1;
-                        padding: 40px 50px;
+                        padding: 15mm 20mm;
                         position: relative;
                         overflow: hidden;
                     }
@@ -152,10 +159,10 @@ export default function CertificatesPage() {
                     
                     .inner-border {
                         position: absolute;
-                        top: 15px;
-                        left: 15px;
-                        right: 15px;
-                        bottom: 15px;
+                        top: 8mm;
+                        left: 8mm;
+                        right: 8mm;
+                        bottom: 8mm;
                         border: 2px solid rgba(255, 215, 0, 0.3);
                         pointer-events: none;
                     }
@@ -164,23 +171,26 @@ export default function CertificatesPage() {
                         display: flex;
                         justify-content: space-between;
                         align-items: flex-start;
-                        margin-bottom: 20px;
+                        margin-bottom: 10mm;
                     }
                     
                     .company-logo {
-                        width: 120px;
+                        width: 55mm;
                         height: auto;
+                        max-height: 20mm;
+                        object-fit: contain;
                     }
                     
                     .cert-logos {
                         display: flex;
-                        gap: 15px;
+                        gap: 5mm;
                         align-items: center;
                     }
                     
                     .cert-logo {
-                        height: 50px;
+                        height: 15mm;
                         width: auto;
+                        object-fit: contain;
                     }
                     
                     .main-content {
