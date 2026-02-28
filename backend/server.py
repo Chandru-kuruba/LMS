@@ -3143,6 +3143,8 @@ async def request_certificate(
     
     await db.certificates.insert_one(certificate)
     
+    # Return without _id
+    certificate.pop("_id", None)
     return {"message": "Certificate generated", "certificate": certificate}
 
 @api_router.post("/certificates/{certificate_id}/print")
