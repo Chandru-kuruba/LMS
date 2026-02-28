@@ -63,10 +63,13 @@ export default function AdminCoursesPage() {
 
     const fetchCourses = async () => {
         try {
-            const response = await axios.get(`${API}/courses?limit=100`);
+            const response = await axios.get(`${API}/admin/courses`, {
+                headers: { Authorization: `Bearer ${accessToken}` }
+            });
             setCourses(response.data.courses || []);
         } catch (error) {
             console.error("Failed to fetch courses:", error);
+            toast.error("Failed to load courses");
         } finally {
             setIsLoading(false);
         }
