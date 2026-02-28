@@ -9,10 +9,21 @@ import {
     Calendar,
     BookOpen,
     Printer,
-    Share2
+    Share2,
+    Edit,
+    Save,
+    X,
+    Unlock
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
 import { useAuthStore } from "@/store/authStore";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -26,6 +37,10 @@ export default function CertificatesPage() {
     const { user, accessToken } = useAuthStore();
     const [certificates, setCertificates] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [editingCert, setEditingCert] = useState(null);
+    const [newName, setNewName] = useState("");
+    const [isSaving, setIsSaving] = useState(false);
+    const [showEditDialog, setShowEditDialog] = useState(false);
 
     useEffect(() => {
         fetchCertificates();
@@ -42,6 +57,38 @@ export default function CertificatesPage() {
             toast.error("Failed to load certificates");
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    const openEditDialog = (cert) => {
+        setEditingCert(cert);
+        setNewName(cert.name_on_certificate);
+        setShowEditDialog(true);
+    };
+
+    const handleUpdateName = async () => {
+        if (!newName.trim()) {
+            toast.error("Please enter a name");
+            return;
+        }
+
+        setIsSaving(true);
+        try {
+            await axios.put(
+                `${API}/certificates/${editingCert.certificate_id}/update-name`,
+                null,
+                {
+                    params: { new_name: newName },
+                    headers: { Authorization: `Bearer ${accessToken}` }
+                }
+            );
+            toast.success("Name updated successfully! Certificate is now locked.");
+            setShowEditDialog(false);
+            fetchCertificates();
+        } catch (error) {
+            toast.error(error.response?.data?.detail || "Failed to update name");
+        } finally {
+            setIsSaving(false);
         }
     };
 
