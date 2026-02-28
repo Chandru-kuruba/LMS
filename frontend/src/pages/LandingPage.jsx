@@ -108,7 +108,7 @@ export default function LandingPage() {
                             <motion.div variants={fadeInUp} className="mb-6">
                                 <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-light text-purple-400 text-sm font-medium">
                                     <Zap className="w-4 h-4" />
-                                    #1 Online Learning Platform
+                                    {hero.badge || "#1 Online Learning Platform"}
                                 </span>
                             </motion.div>
 
