@@ -156,7 +156,7 @@ export default function AdminUserPerformancePage() {
                         <div>
                             <p className="text-sm text-slate-400">Wallet Balance</p>
                             <p className="font-outfit text-2xl font-bold text-white">
-                                ${user.wallet_balance?.toFixed(2) || "0.00"}
+                                ₹{user.wallet_balance?.toFixed(2) || "0.00"}
                             </p>
                         </div>
                     </div>
