@@ -377,9 +377,9 @@ export default function ReferralsPage() {
                                             {earning.buyer?.first_name} {earning.buyer?.last_name}
                                         </td>
                                         <td className="p-4 text-white">{earning.course_title}</td>
-                                        <td className="p-4 text-slate-400">${earning.course_price?.toFixed(2)}</td>
+                                        <td className="p-4 text-slate-400">₹{earning.course_price?.toFixed(2)}</td>
                                         <td className="p-4 text-green-400 font-semibold">
-                                            +${earning.commission_amount?.toFixed(2)}
+                                            +₹{earning.commission_amount?.toFixed(2)}
                                         </td>
                                         <td className="p-4">
                                             <span className="px-2 py-1 rounded-full text-xs bg-green-500/20 text-green-400 flex items-center gap-1 w-fit">
