@@ -1885,7 +1885,7 @@ async def request_withdrawal(
         "user_id": "admin",  # Admin notification
         "type": "withdrawal_request",
         "title": "New Withdrawal Request",
-        "message": f"{user.get('first_name')} {user.get('last_name')} requested withdrawal of ${data.amount:.2f}",
+        "message": f"{user.get('first_name')} {user.get('last_name')} requested withdrawal of ₹{data.amount:.2f}",
         "data": {"withdrawal_id": withdrawal["id"]},
         "is_read": False,
         "created_at": datetime.now(timezone.utc).isoformat()
