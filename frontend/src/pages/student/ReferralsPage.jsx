@@ -178,18 +178,18 @@ export default function ReferralsPage() {
                                 </DialogHeader>
                                 <div className="space-y-4 py-4">
                                     <div className="space-y-2">
-                                        <Label className="text-slate-300">Amount (USD)</Label>
+                                        <Label className="text-slate-300">Amount (INR)</Label>
                                         <Input
                                             type="number"
-                                            min="10"
+                                            min="500"
                                             max={stats?.wallet_balance || 0}
                                             value={withdrawAmount}
                                             onChange={(e) => setWithdrawAmount(e.target.value)}
-                                            placeholder="Minimum $10"
+                                            placeholder="Minimum ₹500"
                                             className="input-neon"
                                         />
                                         <p className="text-xs text-slate-500">
-                                            Available: ${stats?.wallet_balance?.toFixed(2) || "0.00"}
+                                            Available: ₹{stats?.wallet_balance?.toFixed(2) || "0.00"}
                                         </p>
                                     </div>
                                     <div className="space-y-2">
@@ -197,7 +197,7 @@ export default function ReferralsPage() {
                                         <Textarea
                                             value={bankDetails}
                                             onChange={(e) => setBankDetails(e.target.value)}
-                                            placeholder="Enter your bank account details or PayPal/UPI ID for receiving payment"
+                                            placeholder="Enter your bank account details or UPI ID for receiving payment"
                                             className="input-neon min-h-[100px]"
                                         />
                                     </div>
