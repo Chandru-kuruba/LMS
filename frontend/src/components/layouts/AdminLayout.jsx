@@ -102,9 +102,9 @@ export const AdminLayout = () => {
                 <div className="p-4 border-t border-white/10">
                     <div className="flex items-center gap-3 mb-4">
                         <img
-                            src={user?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.id}`}
+                            src={user?.profile_image_url || user?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.id}`}
                             alt="Avatar"
-                            className="w-10 h-10 rounded-full border-2 border-purple-500"
+                            className="w-10 h-10 rounded-full border-2 border-purple-500 object-cover"
                         />
                         <div className="flex-1 min-w-0">
                             <p className="font-medium text-white truncate">
