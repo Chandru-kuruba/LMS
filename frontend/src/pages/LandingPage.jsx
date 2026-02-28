@@ -449,14 +449,14 @@ export default function LandingPage() {
                             <div className="glass-heavy rounded-3xl p-8 neon-border-cyan">
                                 <div className="text-center mb-8">
                                     <p className="text-slate-400 mb-2">Potential Monthly Earnings</p>
-                                    <p className="font-outfit text-5xl font-bold gradient-text">$2,000+</p>
+                                    <p className="font-outfit text-5xl font-bold gradient-text">₹1,00,000+</p>
                                 </div>
 
                                 <div className="space-y-6">
                                     <div className="glass-light rounded-xl p-4">
                                         <div className="flex justify-between items-center mb-2">
                                             <span className="text-slate-400">10 Referrals</span>
-                                            <span className="text-white font-semibold">$200/month</span>
+                                            <span className="text-white font-semibold">₹10,000/month</span>
                                         </div>
                                         <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
                                             <div className="h-full w-1/4 bg-gradient-to-r from-purple-600 to-cyan-500 rounded-full" />
@@ -466,7 +466,7 @@ export default function LandingPage() {
                                     <div className="glass-light rounded-xl p-4">
                                         <div className="flex justify-between items-center mb-2">
                                             <span className="text-slate-400">50 Referrals</span>
-                                            <span className="text-white font-semibold">$1,000/month</span>
+                                            <span className="text-white font-semibold">₹50,000/month</span>
                                         </div>
                                         <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
                                             <div className="h-full w-1/2 bg-gradient-to-r from-purple-600 to-cyan-500 rounded-full" />
@@ -476,7 +476,7 @@ export default function LandingPage() {
                                     <div className="glass-light rounded-xl p-4">
                                         <div className="flex justify-between items-center mb-2">
                                             <span className="text-slate-400">100 Referrals</span>
-                                            <span className="text-white font-semibold">$2,000/month</span>
+                                            <span className="text-white font-semibold">₹1,00,000/month</span>
                                         </div>
                                         <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
                                             <div className="h-full w-full bg-gradient-to-r from-purple-600 to-cyan-500 rounded-full" />
