@@ -202,7 +202,7 @@ export default function LandingPage() {
                                             <span className="text-white font-medium">4.9</span>
                                             <span className="text-slate-500">(2.4k)</span>
                                         </div>
-                                        <span className="text-2xl font-bold text-purple-400">$49.99</span>
+                                        <span className="text-2xl font-bold text-purple-400">₹4,999</span>
                                     </div>
                                 </div>
                             </div>
