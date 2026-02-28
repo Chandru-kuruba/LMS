@@ -2404,7 +2404,14 @@ async def admin_get_user_performance(user_id: str, current_user: dict = Depends(
     }
 
 # Admin Course Management
+@api_router.get("/admin/courses")
+async def admin_get_all_courses(current_user: dict = Depends(get_admin_user)):
+    """Get all courses including unpublished for admin"""
+    courses = await db.courses.find({}, {"_id": 0}).to_list(1000)
+    return {"courses": courses}
+
 @api_router.post("/admin/courses")
+async def admin_create_course(data: CourseCreate, current_user: dict = Depends(get_admin_user)):
 async def admin_create_course(data: CourseCreate, current_user: dict = Depends(get_admin_user)):
     course = {
         "id": str(uuid.uuid4()),
