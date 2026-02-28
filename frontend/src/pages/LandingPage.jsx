@@ -113,12 +113,12 @@ export default function LandingPage() {
                             </motion.div>
 
                             <motion.h1 variants={fadeInUp} className="font-outfit text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-white leading-tight mb-6">
-                                Master New Skills with{" "}
-                                <span className="gradient-text">LUMINA</span>
+                                {hero.title}{" "}
+                                <span className="gradient-text">{hero.brand || "Chand Web Technology"}</span>
                             </motion.h1>
 
                             <motion.p variants={fadeInUp} className="text-lg sm:text-xl text-slate-400 mb-8 max-w-xl">
-                                Join thousands of students learning from industry experts. Get access to premium courses and earn while you learn through our affiliate program.
+                                {hero.subtitle || "Join thousands of students learning from industry experts. Get access to premium courses and earn while you learn through our affiliate program."}
                             </motion.p>
 
                             <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4">
