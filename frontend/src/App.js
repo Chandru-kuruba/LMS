@@ -23,6 +23,7 @@ import AboutPage from "@/pages/AboutPage";
 import ContactPage from "@/pages/ContactPage";
 import FAQPage from "@/pages/FAQPage";
 import PricingPage from "@/pages/PricingPage";
+import VerifyCertificatePage from "@/pages/VerifyCertificatePage";
 
 // Student Pages
 import StudentDashboard from "@/pages/student/Dashboard";
