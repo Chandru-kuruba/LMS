@@ -50,6 +50,7 @@ import AdminTicketsPage from "@/pages/admin/TicketsPage";
 import AdminUserPerformancePage from "@/pages/admin/UserPerformancePage";
 import AdminNotificationsPage from "@/pages/admin/NotificationsPage";
 import AdminCertificatesManagePage from "@/pages/admin/CertificatesManagePage";
+import CertificateDesignPage from "@/pages/admin/CertificateDesignPage";
 
 // Protected Route Component
 const ProtectedRoute = ({ children, requireAdmin = false }) => {
@@ -141,6 +142,7 @@ function App() {
                         <Route path="/admin/tickets" element={<AdminTicketsPage />} />
                         <Route path="/admin/users/:userId/performance" element={<AdminUserPerformancePage />} />
                         <Route path="/admin/certificates" element={<AdminCertificatesManagePage />} />
+                        <Route path="/admin/certificate-design" element={<CertificateDesignPage />} />
                         <Route path="/admin/notifications" element={<AdminNotificationsPage />} />
                     </Route>
 
