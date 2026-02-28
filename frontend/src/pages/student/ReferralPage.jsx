@@ -196,7 +196,7 @@ export default function ReferralPage() {
                     <p className="text-slate-400 mb-4">
                         Minimum withdrawal: ₹500. Available balance: 
                         <span className="text-green-400 font-semibold ml-1">
-                            ${stats?.available_earnings?.toFixed(2) || "0.00"}
+                            ₹{stats?.available_earnings?.toFixed(2) || "0.00"}
                         </span>
                     </p>
                     <div className="space-y-4">
