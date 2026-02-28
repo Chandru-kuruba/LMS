@@ -239,7 +239,7 @@ export default function AdminUserPerformancePage() {
                         <div className="flex justify-between">
                             <span className="text-slate-400">Avg. Order Value</span>
                             <span className="text-white font-medium">
-                                ${total_purchases > 0 ? (total_spent / total_purchases).toFixed(2) : "0.00"}
+                                ₹{total_purchases > 0 ? (total_spent / total_purchases).toFixed(2) : "0.00"}
                             </span>
                         </div>
                     </div>
