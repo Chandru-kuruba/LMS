@@ -8,13 +8,19 @@ import {
     ExternalLink,
     Calendar,
     BookOpen,
-    Printer
+    Printer,
+    Share2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuthStore } from "@/store/authStore";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+
+// Logo URLs
+const COMPANY_LOGO = "https://customer-assets.emergentagent.com/job_lms-stabilize-1/artifacts/8733xudx_Untitled_design-removebg-preview.png";
+const MSME_LOGO = "https://customer-assets.emergentagent.com/job_lms-stabilize-1/artifacts/pmw7was4_msme.png";
+const ISO_LOGO = "https://customer-assets.emergentagent.com/job_lms-stabilize-1/artifacts/yn7tm6lm_iso.png";
 
 export default function CertificatesPage() {
     const { user, accessToken } = useAuthStore();
@@ -51,35 +57,35 @@ export default function CertificatesPage() {
             console.error("Failed to track print:", error);
         }
 
-        // Open print-friendly version
+        // Open print-friendly version with new design
         const printWindow = window.open('', '_blank');
         printWindow.document.write(`
             <!DOCTYPE html>
             <html>
             <head>
                 <title>Certificate - ${certificate.course_title}</title>
+                <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Great+Vibes&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
                 <style>
-                    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Great+Vibes&display=swap');
-                    
+                    @page { size: landscape; margin: 0; }
                     * { margin: 0; padding: 0; box-sizing: border-box; }
                     
                     body {
                         font-family: 'Outfit', sans-serif;
-                        background: #0F172A;
+                        background: #0a0a0a;
                         min-height: 100vh;
                         display: flex;
                         align-items: center;
                         justify-content: center;
-                        padding: 40px;
+                        padding: 20px;
                     }
                     
                     .certificate {
-                        width: 1000px;
-                        height: 700px;
-                        background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
-                        border: 3px solid;
-                        border-image: linear-gradient(135deg, #8B5CF6, #00F5FF) 1;
-                        padding: 60px;
+                        width: 1100px;
+                        height: 780px;
+                        background: linear-gradient(145deg, #1a1a2e 0%, #0d0d1a 50%, #1a1a2e 100%);
+                        border: 4px solid;
+                        border-image: linear-gradient(135deg, #ffd700, #ff8c00, #ffd700) 1;
+                        padding: 40px 50px;
                         position: relative;
                         overflow: hidden;
                     }
@@ -91,107 +97,186 @@ export default function CertificatesPage() {
                         left: 0;
                         right: 0;
                         bottom: 0;
-                        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0L60 30L30 60L0 30z' fill='%238B5CF6' fill-opacity='0.03'/%3E%3C/svg%3E");
+                        background: 
+                            radial-gradient(circle at 10% 10%, rgba(255, 215, 0, 0.05) 0%, transparent 30%),
+                            radial-gradient(circle at 90% 90%, rgba(255, 140, 0, 0.05) 0%, transparent 30%);
+                        pointer-events: none;
+                    }
+                    
+                    .inner-border {
+                        position: absolute;
+                        top: 15px;
+                        left: 15px;
+                        right: 15px;
+                        bottom: 15px;
+                        border: 2px solid rgba(255, 215, 0, 0.3);
                         pointer-events: none;
                     }
                     
                     .header {
-                        text-align: center;
-                        margin-bottom: 40px;
-                    }
-                    
-                    .logo {
-                        font-size: 36px;
-                        font-weight: 700;
-                        background: linear-gradient(90deg, #00F5FF, #8B5CF6, #FF2E9F);
-                        -webkit-background-clip: text;
-                        -webkit-text-fill-color: transparent;
-                        margin-bottom: 10px;
-                    }
-                    
-                    .title {
-                        font-size: 48px;
-                        font-weight: 700;
-                        color: #F8FAFC;
-                        margin-bottom: 10px;
-                    }
-                    
-                    .subtitle {
-                        font-size: 18px;
-                        color: #94A3B8;
-                    }
-                    
-                    .body {
-                        text-align: center;
-                        margin-bottom: 40px;
-                    }
-                    
-                    .presented-to {
-                        font-size: 16px;
-                        color: #94A3B8;
-                        margin-bottom: 15px;
-                    }
-                    
-                    .name {
-                        font-family: 'Great Vibes', cursive;
-                        font-size: 64px;
-                        color: #8B5CF6;
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: flex-start;
                         margin-bottom: 20px;
                     }
                     
-                    .completion-text {
-                        font-size: 18px;
-                        color: #F8FAFC;
-                        margin-bottom: 15px;
+                    .company-logo {
+                        width: 120px;
+                        height: auto;
                     }
                     
-                    .course-title {
+                    .cert-logos {
+                        display: flex;
+                        gap: 15px;
+                        align-items: center;
+                    }
+                    
+                    .cert-logo {
+                        height: 50px;
+                        width: auto;
+                    }
+                    
+                    .main-content {
+                        text-align: center;
+                        padding: 20px 0;
+                    }
+                    
+                    .certificate-title {
+                        font-family: 'Playfair Display', serif;
+                        font-size: 42px;
+                        font-weight: 700;
+                        color: #ffd700;
+                        text-transform: uppercase;
+                        letter-spacing: 8px;
+                        margin-bottom: 5px;
+                        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+                    }
+                    
+                    .certificate-subtitle {
+                        font-size: 16px;
+                        color: #94a3b8;
+                        letter-spacing: 4px;
+                        text-transform: uppercase;
+                        margin-bottom: 30px;
+                    }
+                    
+                    .presented-to {
+                        font-size: 14px;
+                        color: #94a3b8;
+                        margin-bottom: 10px;
+                    }
+                    
+                    .recipient-name {
+                        font-family: 'Great Vibes', cursive;
+                        font-size: 72px;
+                        color: #ffd700;
+                        margin: 10px 0 20px;
+                        text-shadow: 2px 2px 4px rgba(255, 215, 0, 0.2);
+                    }
+                    
+                    .completion-text {
+                        font-size: 16px;
+                        color: #e2e8f0;
+                        margin-bottom: 10px;
+                    }
+                    
+                    .course-name {
+                        font-family: 'Playfair Display', serif;
                         font-size: 28px;
                         font-weight: 600;
-                        color: #00F5FF;
+                        color: #60a5fa;
+                        margin-bottom: 30px;
                     }
                     
-                    .footer {
+                    .details-row {
                         display: flex;
-                        justify-content: space-between;
-                        align-items: flex-end;
-                        margin-top: auto;
-                        position: absolute;
-                        bottom: 60px;
-                        left: 60px;
-                        right: 60px;
+                        justify-content: center;
+                        gap: 60px;
+                        margin-bottom: 30px;
                     }
                     
-                    .footer-item {
+                    .detail-item {
                         text-align: center;
                     }
                     
-                    .footer-label {
-                        font-size: 12px;
-                        color: #64748B;
+                    .detail-label {
+                        font-size: 11px;
+                        color: #64748b;
+                        text-transform: uppercase;
+                        letter-spacing: 1px;
                         margin-bottom: 5px;
                     }
                     
-                    .footer-value {
+                    .detail-value {
                         font-size: 14px;
-                        color: #F8FAFC;
+                        color: #e2e8f0;
+                    }
+                    
+                    .signature-section {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: flex-end;
+                        padding: 0 80px;
+                        position: absolute;
+                        bottom: 60px;
+                        left: 50px;
+                        right: 50px;
+                    }
+                    
+                    .signature-box {
+                        text-align: center;
+                        width: 200px;
+                    }
+                    
+                    .signature {
+                        font-family: 'Great Vibes', cursive;
+                        font-size: 32px;
+                        color: #ffd700;
+                        border-bottom: 2px solid #ffd700;
+                        padding-bottom: 5px;
+                        margin-bottom: 8px;
+                    }
+                    
+                    .signature-name {
+                        font-size: 14px;
+                        color: #e2e8f0;
+                        font-weight: 600;
+                    }
+                    
+                    .signature-title {
+                        font-size: 11px;
+                        color: #64748b;
+                    }
+                    
+                    .cert-id-section {
+                        position: absolute;
+                        bottom: 20px;
+                        left: 50%;
+                        transform: translateX(-50%);
+                        text-align: center;
                     }
                     
                     .cert-id {
                         font-family: monospace;
-                        font-size: 12px;
-                        color: #64748B;
-                        text-align: center;
-                        position: absolute;
-                        bottom: 20px;
-                        left: 0;
-                        right: 0;
+                        font-size: 11px;
+                        color: #64748b;
+                        letter-spacing: 1px;
+                    }
+                    
+                    .verification-text {
+                        font-size: 9px;
+                        color: #475569;
+                        margin-top: 3px;
                     }
                     
                     @media print {
-                        body { background: white; padding: 0; }
+                        body { 
+                            background: white; 
+                            padding: 0; 
+                            -webkit-print-color-adjust: exact;
+                            print-color-adjust: exact;
+                        }
                         .certificate { 
-                            border: 2px solid #8B5CF6;
                             box-shadow: none;
                         }
                     }
@@ -199,37 +284,75 @@ export default function CertificatesPage() {
             </head>
             <body>
                 <div class="certificate">
+                    <div class="inner-border"></div>
+                    
                     <div class="header">
-                        <div class="logo">LUMINA</div>
-                        <div class="title">Certificate of Completion</div>
-                        <div class="subtitle">Online Learning Excellence</div>
+                        <img src="${COMPANY_LOGO}" alt="Chand Web Technology" class="company-logo">
+                        <div class="cert-logos">
+                            <img src="${MSME_LOGO}" alt="MSME Certified" class="cert-logo">
+                            <img src="${ISO_LOGO}" alt="ISO 9001:2015" class="cert-logo">
+                        </div>
                     </div>
                     
-                    <div class="body">
+                    <div class="main-content">
+                        <div class="certificate-title">Certificate</div>
+                        <div class="certificate-subtitle">of Completion</div>
+                        
                         <div class="presented-to">This is to certify that</div>
-                        <div class="name">${certificate.name_on_certificate}</div>
+                        <div class="recipient-name">${certificate.name_on_certificate}</div>
+                        
                         <div class="completion-text">has successfully completed the course</div>
-                        <div class="course-title">${certificate.course_title}</div>
+                        <div class="course-name">${certificate.course_title}</div>
+                        
+                        <div class="details-row">
+                            <div class="detail-item">
+                                <div class="detail-label">Issue Date</div>
+                                <div class="detail-value">${new Date(certificate.issue_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Completion Date</div>
+                                <div class="detail-value">${new Date(certificate.completion_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
+                            </div>
+                        </div>
                     </div>
                     
-                    <div class="footer">
-                        <div class="footer-item">
-                            <div class="footer-label">Issue Date</div>
-                            <div class="footer-value">${new Date(certificate.issue_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
+                    <div class="signature-section">
+                        <div class="signature-box">
+                            <div class="signature">Chandru H</div>
+                            <div class="signature-name">Chandru H</div>
+                            <div class="signature-title">Founder & Director</div>
                         </div>
-                        <div class="footer-item">
-                            <div class="footer-label">Completion Date</div>
-                            <div class="footer-value">${new Date(certificate.completion_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
+                        <div class="signature-box">
+                            <div class="signature">Authorized</div>
+                            <div class="signature-name">Chand Web Technology</div>
+                            <div class="signature-title">MSME & ISO Certified</div>
                         </div>
                     </div>
                     
-                    <div class="cert-id">Certificate ID: ${certificate.certificate_id}</div>
+                    <div class="cert-id-section">
+                        <div class="cert-id">Certificate ID: ${certificate.certificate_id}</div>
+                        <div class="verification-text">Verify at: ${window.location.origin}/verify/${certificate.certificate_id}</div>
+                    </div>
                 </div>
-                <script>window.onload = function() { window.print(); }</script>
+                <script>window.onload = function() { setTimeout(function() { window.print(); }, 500); }</script>
             </body>
             </html>
         `);
         printWindow.document.close();
+    };
+
+    const handleShare = (certificate) => {
+        const verifyUrl = `${window.location.origin}/verify/${certificate.certificate_id}`;
+        if (navigator.share) {
+            navigator.share({
+                title: `Certificate - ${certificate.course_title}`,
+                text: `I earned a certificate in ${certificate.course_title} from Chand Web Technology!`,
+                url: verifyUrl
+            });
+        } else {
+            navigator.clipboard.writeText(verifyUrl);
+            toast.success("Verification link copied to clipboard!");
+        }
     };
 
     return (
@@ -271,23 +394,29 @@ export default function CertificatesPage() {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: index * 0.1 }}
-                            className="glass-heavy rounded-xl overflow-hidden"
+                            className="glass-heavy rounded-xl overflow-hidden border border-yellow-500/20"
                         >
                             {/* Certificate Preview */}
-                            <div className="relative h-48 bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center">
-                                <div className="text-center">
-                                    <div className="text-3xl font-bold gradient-text mb-2">
-                                        LUMINA
+                            <div className="relative h-48 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center overflow-hidden">
+                                {/* Decorative elements */}
+                                <div className="absolute inset-0 opacity-10">
+                                    <div className="absolute top-4 left-4 w-20 h-20 border-2 border-yellow-500 rounded-full" />
+                                    <div className="absolute bottom-4 right-4 w-16 h-16 border-2 border-yellow-500 rounded-full" />
+                                </div>
+                                
+                                <div className="text-center relative z-10">
+                                    <div className="flex justify-center gap-4 mb-3">
+                                        <img src={COMPANY_LOGO} alt="Logo" className="h-8 object-contain" />
                                     </div>
-                                    <div className="text-sm text-slate-400">
-                                        Certificate of Completion
+                                    <div className="text-lg font-bold text-yellow-500 mb-1">
+                                        CERTIFICATE
                                     </div>
-                                    <div className="mt-4 text-2xl font-outfit font-bold text-purple-400">
+                                    <div className="text-xs text-slate-400 tracking-widest mb-3">
+                                        OF COMPLETION
+                                    </div>
+                                    <div className="font-outfit text-xl font-bold text-white">
                                         {certificate.name_on_certificate}
                                     </div>
-                                </div>
-                                <div className="absolute top-4 right-4">
-                                    <Award className="w-10 h-10 text-yellow-500/50" />
                                 </div>
                             </div>
 
@@ -306,14 +435,14 @@ export default function CertificatesPage() {
 
                                 <div className="glass-light rounded-lg p-3 mb-4">
                                     <p className="text-xs text-slate-500">Certificate ID</p>
-                                    <p className="font-mono text-sm text-purple-400">
+                                    <p className="font-mono text-sm text-yellow-500">
                                         {certificate.certificate_id}
                                     </p>
                                 </div>
 
-                                <div className="flex gap-3">
+                                <div className="flex gap-2">
                                     <Button
-                                        className="flex-1 btn-primary"
+                                        className="flex-1 bg-yellow-600 hover:bg-yellow-500 text-white"
                                         onClick={() => handlePrint(certificate)}
                                         data-testid={`print-cert-${certificate.id}`}
                                     >
@@ -323,10 +452,9 @@ export default function CertificatesPage() {
                                     <Button
                                         variant="outline"
                                         className="border-slate-700 text-slate-300 hover:bg-slate-800"
-                                        onClick={() => handlePrint(certificate)}
+                                        onClick={() => handleShare(certificate)}
                                     >
-                                        <Download className="w-4 h-4 mr-2" />
-                                        Download
+                                        <Share2 className="w-4 h-4" />
                                     </Button>
                                 </div>
                             </div>
@@ -335,23 +463,21 @@ export default function CertificatesPage() {
                 </div>
             )}
 
-            {/* Info Box */}
+            {/* Company Info */}
             <div className="glass-medium rounded-xl p-6">
-                <h3 className="font-semibold text-white mb-4">About Certificates</h3>
-                <ul className="space-y-3 text-slate-400">
-                    <li className="flex items-start gap-3">
-                        <Award className="w-5 h-5 text-purple-400 flex-shrink-0 mt-0.5" />
-                        <span>Certificates are awarded upon completing 100% of course content</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                        <Printer className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" />
-                        <span>Print or download your certificates anytime</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                        <ExternalLink className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
-                        <span>Each certificate has a unique ID for verification</span>
-                    </li>
-                </ul>
+                <div className="flex items-center justify-between flex-wrap gap-4">
+                    <div>
+                        <h3 className="font-semibold text-white mb-2">About Your Certificates</h3>
+                        <p className="text-slate-400 text-sm">
+                            All certificates are issued by Chand Web Technology, an MSME registered and ISO 9001:2015 certified company.
+                            Each certificate has a unique ID that can be verified online.
+                        </p>
+                    </div>
+                    <div className="flex gap-4 items-center">
+                        <img src={MSME_LOGO} alt="MSME" className="h-12 object-contain" />
+                        <img src={ISO_LOGO} alt="ISO" className="h-12 object-contain" />
+                    </div>
+                </div>
             </div>
         </div>
     );
