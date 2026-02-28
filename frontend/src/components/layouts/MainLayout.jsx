@@ -297,18 +297,18 @@ export const MainLayout = () => {
                         <div>
                             <h4 className="font-outfit font-semibold text-white mb-4">Company</h4>
                             <ul className="space-y-2">
-                                <li><a href="#" className="text-slate-500 hover:text-white transition-colors text-sm">About Us</a></li>
-                                <li><a href="#" className="text-slate-500 hover:text-white transition-colors text-sm">Contact</a></li>
-                                <li><a href="#" className="text-slate-500 hover:text-white transition-colors text-sm">Careers</a></li>
+                                <li><Link to="/page/about" className="text-slate-500 hover:text-white transition-colors text-sm">About Us</Link></li>
+                                <li><Link to="/page/contact" className="text-slate-500 hover:text-white transition-colors text-sm">Contact</Link></li>
+                                <li><Link to="/page/careers" className="text-slate-500 hover:text-white transition-colors text-sm">Careers</Link></li>
                             </ul>
                         </div>
 
                         <div>
                             <h4 className="font-outfit font-semibold text-white mb-4">Legal</h4>
                             <ul className="space-y-2">
-                                <li><a href="#" className="text-slate-500 hover:text-white transition-colors text-sm">Privacy Policy</a></li>
-                                <li><a href="#" className="text-slate-500 hover:text-white transition-colors text-sm">Terms of Service</a></li>
-                                <li><a href="#" className="text-slate-500 hover:text-white transition-colors text-sm">Refund Policy</a></li>
+                                <li><Link to="/page/privacy-policy" className="text-slate-500 hover:text-white transition-colors text-sm">Privacy Policy</Link></li>
+                                <li><Link to="/page/terms-of-service" className="text-slate-500 hover:text-white transition-colors text-sm">Terms of Service</Link></li>
+                                <li><Link to="/page/refund-policy" className="text-slate-500 hover:text-white transition-colors text-sm">Refund Policy</Link></li>
                             </ul>
                         </div>
                     </div>
