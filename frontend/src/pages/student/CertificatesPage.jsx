@@ -195,61 +195,61 @@ export default function CertificatesPage() {
                     
                     .main-content {
                         text-align: center;
-                        padding: 20px 0;
+                        padding: 5mm 0;
                     }
                     
                     .certificate-title {
                         font-family: 'Playfair Display', serif;
-                        font-size: 42px;
+                        font-size: 14mm;
                         font-weight: 700;
                         color: #ffd700;
                         text-transform: uppercase;
-                        letter-spacing: 8px;
-                        margin-bottom: 5px;
+                        letter-spacing: 3mm;
+                        margin-bottom: 2mm;
                         text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
                     }
                     
                     .certificate-subtitle {
-                        font-size: 16px;
+                        font-size: 5mm;
                         color: #94a3b8;
-                        letter-spacing: 4px;
+                        letter-spacing: 1.5mm;
                         text-transform: uppercase;
-                        margin-bottom: 30px;
+                        margin-bottom: 8mm;
                     }
                     
                     .presented-to {
-                        font-size: 14px;
+                        font-size: 4.5mm;
                         color: #94a3b8;
-                        margin-bottom: 10px;
+                        margin-bottom: 3mm;
                     }
                     
                     .recipient-name {
                         font-family: 'Great Vibes', cursive;
-                        font-size: 72px;
+                        font-size: 20mm;
                         color: #ffd700;
-                        margin: 10px 0 20px;
+                        margin: 3mm 0 6mm;
                         text-shadow: 2px 2px 4px rgba(255, 215, 0, 0.2);
                     }
                     
                     .completion-text {
-                        font-size: 16px;
+                        font-size: 5mm;
                         color: #e2e8f0;
-                        margin-bottom: 10px;
+                        margin-bottom: 3mm;
                     }
                     
                     .course-name {
                         font-family: 'Playfair Display', serif;
-                        font-size: 28px;
+                        font-size: 8mm;
                         font-weight: 600;
                         color: #60a5fa;
-                        margin-bottom: 30px;
+                        margin-bottom: 8mm;
                     }
                     
                     .details-row {
                         display: flex;
                         justify-content: center;
-                        gap: 60px;
-                        margin-bottom: 30px;
+                        gap: 20mm;
+                        margin-bottom: 8mm;
                     }
                     
                     .detail-item {
@@ -257,15 +257,15 @@ export default function CertificatesPage() {
                     }
                     
                     .detail-label {
-                        font-size: 11px;
+                        font-size: 3mm;
                         color: #64748b;
                         text-transform: uppercase;
-                        letter-spacing: 1px;
-                        margin-bottom: 5px;
+                        letter-spacing: 0.5mm;
+                        margin-bottom: 1.5mm;
                     }
                     
                     .detail-value {
-                        font-size: 14px;
+                        font-size: 4mm;
                         color: #e2e8f0;
                     }
                     
@@ -273,21 +273,21 @@ export default function CertificatesPage() {
                         display: flex;
                         justify-content: space-between;
                         align-items: flex-end;
-                        padding: 0 80px;
+                        padding: 0 25mm;
                         position: absolute;
-                        bottom: 60px;
-                        left: 50px;
-                        right: 50px;
+                        bottom: 18mm;
+                        left: 15mm;
+                        right: 15mm;
                     }
                     
                     .signature-box {
                         text-align: center;
-                        width: 200px;
+                        width: 60mm;
                     }
                     
                     .signature {
                         font-family: 'Great Vibes', cursive;
-                        font-size: 32px;
+                        font-size: 10mm;
                         color: #ffd700;
                         border-bottom: 2px solid #ffd700;
                         padding-bottom: 5px;
