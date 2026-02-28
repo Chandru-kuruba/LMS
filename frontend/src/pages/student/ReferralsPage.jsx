@@ -74,8 +74,8 @@ export default function ReferralsPage() {
 
     const handleWithdrawRequest = async () => {
         const amount = parseFloat(withdrawAmount);
-        if (isNaN(amount) || amount < 10) {
-            toast.error("Minimum withdrawal amount is $10");
+        if (isNaN(amount) || amount < 500) {
+            toast.error("Minimum withdrawal amount is ₹500");
             return;
         }
         if (amount > (stats?.wallet_balance || 0)) {
