@@ -294,10 +294,10 @@ export default function ReferralPage() {
                                     </div>
                                     <div>
                                         <p className="font-medium text-white">
-                                            ${commission.commission?.toFixed(2)} commission
+                                            ₹{commission.commission?.toFixed(2)} commission
                                         </p>
                                         <p className="text-sm text-slate-500">
-                                            From ${commission.amount?.toFixed(2)} purchase
+                                            From ₹{commission.amount?.toFixed(2)} purchase
                                         </p>
                                     </div>
                                 </div>
