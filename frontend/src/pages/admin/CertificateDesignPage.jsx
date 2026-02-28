@@ -43,10 +43,10 @@ import { useAuthStore } from "@/store/authStore";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
-// Logo URLs
-const COMPANY_LOGO = "https://customer-assets.emergentagent.com/job_lms-stabilize-1/artifacts/8733xudx_Untitled_design-removebg-preview.png";
-const MSME_LOGO = "https://customer-assets.emergentagent.com/job_lms-stabilize-1/artifacts/pmw7was4_msme.png";
-const ISO_LOGO = "https://customer-assets.emergentagent.com/job_lms-stabilize-1/artifacts/yn7tm6lm_iso.png";
+// Logo URLs - Updated with new logos
+const COMPANY_LOGO = "https://customer-assets.emergentagent.com/job_lms-cert-design/artifacts/hdcdkoww_Untitled_design-removebg-preview.png";
+const MSME_LOGO = "https://customer-assets.emergentagent.com/job_lms-cert-design/artifacts/03i639mu_cropped_circle_image%20%281%29.png";
+const ISO_LOGO = "https://customer-assets.emergentagent.com/job_lms-cert-design/artifacts/q4oopvv8_iso-removebg-preview%20%281%29.png";
 
 const fontOptions = [
     { value: "Great Vibes", label: "Great Vibes (Script)" },
