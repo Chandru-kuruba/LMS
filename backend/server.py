@@ -490,7 +490,7 @@ def send_order_success_email(to_email: str, user_name: str, order: dict, courses
         course_rows += f"""
         <tr>
             <td style="padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.1);">{course['title']}</td>
-            <td style="padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: right;">${price:.2f}</td>
+            <td style="padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: right;">₹{price:.2f}</td>
         </tr>
         """
     
