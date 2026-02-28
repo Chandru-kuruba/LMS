@@ -606,6 +606,65 @@ def send_withdrawal_notification_email(to_email: str, user_name: str, amount: fl
     """
     return send_email(to_email, f"Withdrawal {status.title()} - LUMINA", html_content)
 
+def send_certificate_email(to_email: str, user_name: str, course_title: str, certificate_id: str, verification_url: str):
+    """Send certificate generation notification email"""
+    html_content = f"""
+    <html>
+    <head>
+        <style>
+            body {{ font-family: 'Segoe UI', Arial, sans-serif; background: #0F172A; margin: 0; padding: 20px; color: #F8FAFC; }}
+            .container {{ max-width: 600px; margin: 0 auto; background: linear-gradient(145deg, #1E293B, #0F172A); border-radius: 20px; padding: 40px; border: 1px solid #8B5CF6; }}
+            .header {{ text-align: center; margin-bottom: 30px; }}
+            .logo {{ font-size: 32px; font-weight: bold; background: linear-gradient(90deg, #00F5FF, #8B5CF6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }}
+            .trophy {{ font-size: 60px; margin: 20px 0; }}
+            h1 {{ color: #F8FAFC; font-size: 28px; margin: 0; }}
+            .subtitle {{ color: #94A3B8; font-size: 16px; }}
+            .content {{ margin: 30px 0; }}
+            .course-box {{ background: #1E293B; border-radius: 12px; padding: 20px; border-left: 4px solid #8B5CF6; margin: 20px 0; }}
+            .course-title {{ color: #8B5CF6; font-size: 18px; font-weight: bold; margin-bottom: 5px; }}
+            .cert-id {{ font-family: monospace; background: #374151; padding: 8px 16px; border-radius: 8px; display: inline-block; margin: 10px 0; color: #00F5FF; }}
+            .btn {{ display: inline-block; padding: 14px 32px; background: linear-gradient(135deg, #8B5CF6, #6366F1); color: white; text-decoration: none; border-radius: 12px; font-weight: bold; margin: 10px 5px; }}
+            .btn-outline {{ background: transparent; border: 2px solid #8B5CF6; color: #8B5CF6; }}
+            .footer {{ text-align: center; margin-top: 30px; color: #64748B; font-size: 14px; border-top: 1px solid #374151; padding-top: 20px; }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <div class="logo">CHAND WEB TECHNOLOGY</div>
+                <div class="trophy">🏆</div>
+                <h1>Congratulations, {user_name}!</h1>
+                <p class="subtitle">You've earned a certificate!</p>
+            </div>
+            
+            <div class="content">
+                <p>We're thrilled to inform you that your certificate has been successfully generated for completing:</p>
+                
+                <div class="course-box">
+                    <div class="course-title">{course_title}</div>
+                    <p style="color: #94A3B8; margin: 0;">Certificate of Completion</p>
+                </div>
+                
+                <p><strong>Certificate ID:</strong></p>
+                <div class="cert-id">{certificate_id}</div>
+                
+                <div style="text-align: center; margin-top: 30px;">
+                    <a href="{verification_url}" class="btn">View Certificate</a>
+                    <a href="{verification_url.replace('/verify/', '/certificates')}" class="btn btn-outline">Download</a>
+                </div>
+            </div>
+            
+            <div class="footer">
+                <p>This certificate is verifiable at any time using the Certificate ID above.</p>
+                <p>ISO 9001:2015 Certified | MSME Registered</p>
+                <p>&copy; 2026 Chand Web Technology. All rights reserved.</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+    return send_email(to_email, f"🎉 Certificate Earned - {course_title}", html_content)
+
 # ======================== R2 STORAGE FUNCTIONS ========================
 
 def upload_to_r2(file_data: bytes, object_key: str, content_type: str = "application/octet-stream") -> bool:
