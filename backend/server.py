@@ -2226,7 +2226,12 @@ async def get_cms_section(section: str):
 @api_router.get("/cms")
 async def get_all_cms():
     cms_sections = await db.cms.find({}, {"_id": 0}).to_list(100)
-    return {"sections": {c["section"]: c["content"] for c in cms_sections}}
+    # Handle both 'section' and 'slug' keys for backwards compatibility
+    sections = {}
+    for c in cms_sections:
+        key = c.get("section") or c.get("slug", "unknown")
+        sections[key] = c.get("content", {})
+    return {"sections": sections}
 
 # ======================== ADMIN ROUTES ========================
 
