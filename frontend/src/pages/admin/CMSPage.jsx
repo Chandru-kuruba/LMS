@@ -61,10 +61,26 @@ const defaultSections = {
         }
     },
     about: {
-        title: "About Us",
-        description: "Chand Web Technology is an MSME registered and ISO 9001:2015 certified company dedicated to providing quality online education.",
-        mission: "Empowering learners worldwide with accessible, high-quality education.",
-        vision: "To be the leading platform for professional skill development.",
+        title: "About Chand Web Technology Private Limited",
+        description: "Chand Web Technology Private Limited is a Bengaluru-based IT services company incorporated on April 24, 2025. It is classified as an active, unlisted private company registered with the Registrar of Companies (RoC-Bangalore).",
+        mission: "Empowering businesses and learners worldwide with modern digital transformation and custom development using advanced technology stacks.",
+        vision: "To be the leading platform for professional skill development and digital transformation services.",
+        corporate_info: {
+            cin: "U62012KA2025PTC201894",
+            authorized_capital: "₹1,00,000",
+            paid_up_capital: "₹10,000"
+        },
+        address: "No. 8 Ground Floor, 6th Cross, Ayyappanagar, Krishnarajapuram, Bangalore, Karnataka – 560036",
+        directors: [
+            { name: "Hanumantha Uma", title: "Director" },
+            { name: "Chandru Hanumantha", title: "Director" }
+        ],
+        services: [
+            "Web & Mobile Applications (React, Next.js, Node.js, React Native)",
+            "Custom Software Development (FinTech, Healthcare, E-learning, Retail POS)",
+            "Cloud & Modernization (AWS, Azure, Docker)",
+            "UI/UX Design & Prototyping"
+        ],
         founder: {
             name: "Chandru H",
             title: "Founder & Director",
@@ -74,22 +90,24 @@ const defaultSections = {
     contact: {
         title: "Contact Us",
         description: "We'd love to hear from you",
-        email: "support@chandwebtechnology.com",
-        phone: "+91 1234567890",
-        address: "India",
+        email: "info@chandwebtechnology.com",
+        secondary_email: "chanduh345@gmail.com",
+        phone: "+91 72043 43968",
+        website: "chandwebtechnology.com",
+        address: "No. 8 Ground Floor, 6th Cross, Ayyappanagar, Krishnarajapuram, Bangalore, Karnataka – 560036",
         form_enabled: true
     },
     footer: {
         company: {
-            name: "Chand Web Technology",
-            description: "Empowering learners worldwide with quality education",
+            name: "Chand Web Technology Pvt Ltd",
+            description: "Bengaluru-based IT services company specializing in modern digital transformation and custom development.",
             logo: "https://customer-assets.emergentagent.com/job_lms-stabilize-1/artifacts/8733xudx_Untitled_design-removebg-preview.png"
         },
         certifications: [
             { name: "MSME", logo: "https://customer-assets.emergentagent.com/job_lms-stabilize-1/artifacts/pmw7was4_msme.png" },
             { name: "ISO 9001:2015", logo: "https://customer-assets.emergentagent.com/job_lms-stabilize-1/artifacts/yn7tm6lm_iso.png" }
         ],
-        copyright: "© 2026 Chand Web Technology. All rights reserved.",
+        copyright: "© 2026 Chand Web Technology Private Limited. CIN: U62012KA2025PTC201894. All rights reserved.",
         social: {
             twitter: "",
             facebook: "",
