@@ -48,7 +48,6 @@ import AdminCMSPage from "@/pages/admin/CMSPage";
 import CourseEditorPage from "@/pages/admin/CourseEditor";
 import AdminTicketsPage from "@/pages/admin/TicketsPage";
 import AdminUserPerformancePage from "@/pages/admin/UserPerformancePage";
-import CertificateTemplatesPage from "@/pages/admin/CertificateTemplatesPage";
 import AdminNotificationsPage from "@/pages/admin/NotificationsPage";
 import AdminCertificatesManagePage from "@/pages/admin/CertificatesManagePage";
 
@@ -141,7 +140,6 @@ function App() {
                         <Route path="/admin/cms" element={<AdminCMSPage />} />
                         <Route path="/admin/tickets" element={<AdminTicketsPage />} />
                         <Route path="/admin/users/:userId/performance" element={<AdminUserPerformancePage />} />
-                        <Route path="/admin/certificate-templates" element={<CertificateTemplatesPage />} />
                         <Route path="/admin/certificates" element={<AdminCertificatesManagePage />} />
                         <Route path="/admin/notifications" element={<AdminNotificationsPage />} />
                     </Route>
