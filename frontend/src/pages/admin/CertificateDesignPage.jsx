@@ -342,7 +342,7 @@ export default function CertificateDesignPage() {
         toast.success("Logo removed");
     };
 
-    const PositionControl = ({ label, element, icon: Icon, maxX = 1190, maxY = 842 }) => (
+    const PositionControl = ({ label, element, icon: Icon, maxX = PREVIEW_WIDTH, maxY = PREVIEW_HEIGHT }) => (
         <div className="space-y-3 p-3 glass-light rounded-lg">
             <div className="flex items-center justify-between">
                 <Label className="text-slate-300 flex items-center gap-2">
