@@ -346,7 +346,7 @@ export default function AdminUserPerformancePage() {
                                         <td className="p-4 text-slate-300">{earning.buyer_email || "N/A"}</td>
                                         <td className="p-4 text-white">{earning.course_title}</td>
                                         <td className="p-4 text-green-400 font-medium">
-                                            +${earning.commission_amount?.toFixed(2) || "0.00"}
+                                            +₹{earning.commission_amount?.toFixed(2) || "0.00"}
                                         </td>
                                     </tr>
                                 ))}
