@@ -452,7 +452,7 @@ export default function ReferralsPage() {
                                             {new Date(w.created_at).toLocaleDateString()}
                                         </td>
                                         <td className="p-4 text-white font-medium">
-                                            ${w.amount?.toFixed(2)}
+                                            ₹{w.amount?.toFixed(2)}
                                         </td>
                                         <td className="p-4">
                                             <span className={`px-2 py-1 rounded-full text-xs flex items-center gap-1 w-fit ${
