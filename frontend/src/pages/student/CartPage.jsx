@@ -101,15 +101,15 @@ export default function CartPage() {
                                                 {item.course?.discount_price ? (
                                                     <div className="flex items-center gap-2">
                                                         <span className="text-slate-500 line-through text-sm">
-                                                            ${item.course.price}
+                                                            ₹{item.course.price}
                                                         </span>
                                                         <span className="text-xl font-bold text-purple-400">
-                                                            ${item.course.discount_price}
+                                                            ₹{item.course.discount_price}
                                                         </span>
                                                     </div>
                                                 ) : (
                                                     <span className="text-xl font-bold text-purple-400">
-                                                        ${item.course?.price}
+                                                        ₹{item.course?.price}
                                                     </span>
                                                 )}
                                             </div>
