@@ -194,7 +194,7 @@ export default function AdminDashboard() {
                             </div>
                         </div>
                         <p className="text-sm text-slate-500">
-                            Total: ${stats?.pending_withdrawal_amount?.toFixed(2) || "0.00"}
+                            Total: ₹{stats?.pending_withdrawal_amount?.toFixed(2) || "0.00"}
                         </p>
                     </div>
 
