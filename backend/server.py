@@ -3210,6 +3210,21 @@ async def request_certificate(
     
     await db.certificates.insert_one(certificate)
     
+    # Send certificate email notification
+    frontend_url = os.environ.get("FRONTEND_URL", "https://skill-exchange-110.preview.emergentagent.com")
+    verification_url = f"{frontend_url}/verify/{cert_id}"
+    
+    try:
+        send_certificate_email(
+            to_email=current_user["email"],
+            user_name=name_on_certificate,
+            course_title=course["title"],
+            certificate_id=cert_id,
+            verification_url=verification_url
+        )
+    except Exception as e:
+        logger.error(f"Failed to send certificate email: {e}")
+    
     # Return without _id
     certificate.pop("_id", None)
     return {"message": "Certificate generated", "certificate": certificate}
