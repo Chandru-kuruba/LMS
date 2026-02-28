@@ -3307,6 +3307,147 @@ async def admin_unlock_certificate_name(certificate_id: str, current_user: dict 
     )
     return {"message": "Certificate name unlocked for editing"}
 
+# Admin notifications management
+@api_router.get("/admin/notifications")
+async def admin_get_all_notifications(current_user: dict = Depends(get_admin_user)):
+    """Get all sent notifications for admin"""
+    notifications = await db.admin_notifications.find({}, {"_id": 0}).sort("created_at", -1).to_list(500)
+    return {"notifications": notifications}
+
+@api_router.post("/admin/notifications/send")
+async def admin_send_notification(data: dict, current_user: dict = Depends(get_admin_user)):
+    """Send notification to users with optional email"""
+    title = data.get("title", "")
+    message = data.get("message", "")
+    notif_type = data.get("type", "announcement")
+    send_email = data.get("send_email", False)
+    user_ids = data.get("user_ids")  # None means all users
+    
+    if not title or not message:
+        raise HTTPException(status_code=400, detail="Title and message are required")
+    
+    # Get target users
+    if user_ids:
+        users = await db.users.find({"id": {"$in": user_ids}}, {"_id": 0, "id": 1, "email": 1, "first_name": 1}).to_list(1000)
+    else:
+        users = await db.users.find({}, {"_id": 0, "id": 1, "email": 1, "first_name": 1}).to_list(10000)
+    
+    # Create notification record
+    admin_notif = {
+        "id": str(uuid.uuid4()),
+        "title": title,
+        "message": message,
+        "type": notif_type,
+        "recipient_count": len(users),
+        "email_sent": send_email,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "created_by": current_user["id"]
+    }
+    await db.admin_notifications.insert_one(admin_notif)
+    
+    # Create individual notifications for each user
+    for user in users:
+        notif = {
+            "id": str(uuid.uuid4()),
+            "user_id": user["id"],
+            "title": title,
+            "message": message,
+            "type": notif_type,
+            "is_read": False,
+            "created_at": datetime.now(timezone.utc).isoformat()
+        }
+        await db.notifications.insert_one(notif)
+        
+        # Send email if requested
+        if send_email:
+            try:
+                html_content = f"""
+                <html>
+                <head>
+                    <style>
+                        body {{ font-family: 'Segoe UI', Arial, sans-serif; background: #0F172A; color: #F8FAFC; margin: 0; padding: 20px; }}
+                        .container {{ max-width: 600px; margin: 0 auto; background: #1E293B; border-radius: 16px; padding: 30px; }}
+                        .header {{ text-align: center; margin-bottom: 20px; }}
+                        .logo {{ font-size: 24px; font-weight: bold; color: #8B5CF6; }}
+                        h1 {{ color: #F8FAFC; font-size: 22px; margin-top: 20px; }}
+                        .message {{ color: #94A3B8; line-height: 1.6; }}
+                        .footer {{ text-align: center; margin-top: 30px; color: #64748B; font-size: 12px; }}
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <div class="header">
+                            <div class="logo">Chand Web Technology</div>
+                        </div>
+                        <h1>{title}</h1>
+                        <div class="message">{message}</div>
+                        <div class="footer">
+                            <p>This notification was sent from Chand Web Technology</p>
+                        </div>
+                    </div>
+                </body>
+                </html>
+                """
+                send_email_func(user["email"], title, html_content)
+            except Exception as e:
+                logger.error(f"Failed to send email to {user['email']}: {e}")
+    
+    return {"message": f"Notification sent to {len(users)} users"}
+
+@api_router.delete("/admin/notifications/{notif_id}")
+async def admin_delete_notification(notif_id: str, current_user: dict = Depends(get_admin_user)):
+    """Delete admin notification record"""
+    await db.admin_notifications.delete_one({"id": notif_id})
+    return {"message": "Notification deleted"}
+
+# Admin certificates management
+@api_router.get("/admin/certificates")
+async def admin_get_all_certificates(current_user: dict = Depends(get_admin_user)):
+    """Get all certificates for admin"""
+    certificates = await db.certificates.find({}, {"_id": 0}).sort("created_at", -1).to_list(1000)
+    return {"certificates": certificates}
+
+@api_router.get("/admin/certificates/search")
+async def admin_search_certificate(certificate_id: str, current_user: dict = Depends(get_admin_user)):
+    """Search certificate by ID"""
+    cert = await db.certificates.find_one({"certificate_id": certificate_id}, {"_id": 0})
+    if not cert:
+        raise HTTPException(status_code=404, detail="Certificate not found")
+    return {"certificate": cert}
+
+@api_router.put("/admin/certificates/{certificate_id}")
+async def admin_update_certificate(certificate_id: str, data: dict, current_user: dict = Depends(get_admin_user)):
+    """Update certificate details (admin only)"""
+    update_data = {}
+    if "name_on_certificate" in data:
+        update_data["name_on_certificate"] = data["name_on_certificate"]
+    if "course_title" in data:
+        update_data["course_title"] = data["course_title"]
+    if "issue_date" in data:
+        update_data["issue_date"] = data["issue_date"]
+    
+    update_data["updated_at"] = datetime.now(timezone.utc).isoformat()
+    update_data["updated_by"] = current_user["id"]
+    
+    result = await db.certificates.update_one(
+        {"certificate_id": certificate_id},
+        {"$set": update_data}
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Certificate not found")
+    
+    return {"message": "Certificate updated"}
+
+@api_router.post("/admin/certificates/{certificate_id}/unlock-name")
+async def admin_unlock_cert_name(certificate_id: str, current_user: dict = Depends(get_admin_user)):
+    """Unlock certificate name for user editing"""
+    await db.certificates.update_one(
+        {"certificate_id": certificate_id},
+        {"$set": {"name_locked": False}}
+    )
+    return {"message": "Name unlocked"}
+
 @api_router.put("/certificates/{certificate_id}/update-name")
 async def update_certificate_name(
     certificate_id: str,
