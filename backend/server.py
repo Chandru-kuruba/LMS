@@ -3508,6 +3508,27 @@ async def admin_lock_cert(certificate_id: str, current_user: dict = Depends(get_
         raise HTTPException(status_code=404, detail="Certificate not found")
     return {"message": "Certificate locked - user cannot edit"}
 
+# Global Certificate Design Endpoints
+@api_router.get("/admin/certificate-design")
+async def get_global_certificate_design(current_user: dict = Depends(get_admin_user)):
+    """Get the global certificate design settings"""
+    design = await db.certificate_design.find_one({"type": "global"}, {"_id": 0})
+    return {"design": design}
+
+@api_router.put("/admin/certificate-design")
+async def update_global_certificate_design(data: dict, current_user: dict = Depends(get_admin_user)):
+    """Update the global certificate design settings - applies to all certificates"""
+    data["type"] = "global"
+    data["updated_at"] = datetime.now(timezone.utc).isoformat()
+    data["updated_by"] = current_user["id"]
+    
+    await db.certificate_design.update_one(
+        {"type": "global"},
+        {"$set": data},
+        upsert=True
+    )
+    return {"message": "Global certificate design saved"}
+
 @api_router.put("/certificates/{certificate_id}/update-name")
 async def update_certificate_name(
     certificate_id: str,
