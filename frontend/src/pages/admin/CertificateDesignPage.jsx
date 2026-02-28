@@ -753,31 +753,93 @@ export default function CertificateDesignPage() {
                                                 placeholder="https://..."
                                             />
                                         </div>
-                                        <div className="grid grid-cols-2 gap-3">
-                                            <div>
-                                                <Label className="text-xs text-slate-500">Width: {design.logo_size?.width || 250}px</Label>
-                                                <Slider
-                                                    value={[design.logo_size?.width || 250]}
-                                                    onValueChange={([v]) => setDesign({
-                                                        ...design,
-                                                        logo_size: { ...design.logo_size, width: v }
-                                                    })}
-                                                    min={80}
-                                                    max={500}
-                                                />
-                                            </div>
-                                            <div>
-                                                <Label className="text-xs text-slate-500">Height: {design.logo_size?.height || 100}px</Label>
-                                                <Slider
-                                                    value={[design.logo_size?.height || 100]}
-                                                    onValueChange={([v]) => setDesign({
-                                                        ...design,
-                                                        logo_size: { ...design.logo_size, height: v }
-                                                    })}
-                                                    min={40}
-                                                    max={200}
-                                                />
-                                            </div>
+                                        
+                                        {/* Adjustable Width */}
+                                        <div>
+                                            <Label className="text-xs text-slate-500">
+                                                Logo Width: <span className="text-purple-400 font-bold">{design.logo_size?.width || 300}px</span>
+                                                <span className="text-slate-600 ml-2">(~{Math.round((design.logo_size?.width || 300) / 4)}mm in print)</span>
+                                            </Label>
+                                            <Slider
+                                                value={[design.logo_size?.width || 300]}
+                                                onValueChange={([v]) => setDesign({
+                                                    ...design,
+                                                    logo_size: { ...design.logo_size, width: v }
+                                                })}
+                                                min={100}
+                                                max={600}
+                                                step={10}
+                                            />
+                                        </div>
+                                        
+                                        {/* Adjustable Height */}
+                                        <div>
+                                            <Label className="text-xs text-slate-500">
+                                                Logo Height: <span className="text-purple-400 font-bold">{design.logo_size?.height || 120}px</span>
+                                                <span className="text-slate-600 ml-2">(~{Math.round((design.logo_size?.height || 120) / 4)}mm in print)</span>
+                                            </Label>
+                                            <Slider
+                                                value={[design.logo_size?.height || 120]}
+                                                onValueChange={([v]) => setDesign({
+                                                    ...design,
+                                                    logo_size: { ...design.logo_size, height: v }
+                                                })}
+                                                min={40}
+                                                max={250}
+                                                step={5}
+                                            />
+                                        </div>
+
+                                        {/* Aspect Ratio Toggle */}
+                                        <div className="flex items-center justify-between p-2 bg-slate-800/50 rounded">
+                                            <Label className="text-xs text-slate-400">Maintain Aspect Ratio</Label>
+                                            <Switch
+                                                checked={design.logo_maintain_aspect_ratio}
+                                                onCheckedChange={(v) => setDesign({ ...design, logo_maintain_aspect_ratio: v })}
+                                            />
+                                        </div>
+
+                                        {/* Quick Size Presets */}
+                                        <div className="flex gap-2 flex-wrap">
+                                            <Button 
+                                                size="sm" 
+                                                variant="outline" 
+                                                className="text-xs"
+                                                onClick={() => setDesign({
+                                                    ...design,
+                                                    logo_size: { width: 200, height: 80 }
+                                                })}
+                                            >
+                                                Small (200×80)
+                                            </Button>
+                                            <Button 
+                                                size="sm" 
+                                                variant="outline" 
+                                                className="text-xs"
+                                                onClick={() => setDesign({
+                                                    ...design,
+                                                    logo_size: { width: 300, height: 120 }
+                                                })}
+                                            >
+                                                Medium (300×120)
+                                            </Button>
+                                            <Button 
+                                                size="sm" 
+                                                variant="outline" 
+                                                className="text-xs"
+                                                onClick={() => setDesign({
+                                                    ...design,
+                                                    logo_size: { width: 400, height: 160 }
+                                                })}
+                                            >
+                                                Large (400×160)
+                                            </Button>
+                                        </div>
+
+                                        {/* Drag Info */}
+                                        <div className="p-2 bg-purple-500/10 border border-purple-500/30 rounded text-xs text-purple-300">
+                                            <GripVertical className="w-3 h-3 inline mr-1" />
+                                            Drag the logo in the preview to reposition it. Current position: ({design.logo_position?.x || 180}, {design.logo_position?.y || 70})
                                         </div>
                                     </>
                                 )}
