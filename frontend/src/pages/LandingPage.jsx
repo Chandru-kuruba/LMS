@@ -42,27 +42,47 @@ const staggerContainer = {
 export default function LandingPage() {
     const [courses, setCourses] = useState([]);
     const [faqs, setFaqs] = useState([]);
-    const [stats] = useState({
-        students: 50000,
-        courses: 200,
-        instructors: 50
+    const [cms, setCms] = useState(null);
+    const [stats, setStats] = useState({
+        students: "50K+",
+        courses: "200+",
+        instructors: "50+"
     });
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [coursesRes, faqsRes] = await Promise.all([
+                const [coursesRes, faqsRes, cmsRes] = await Promise.all([
                     axios.get(`${API}/courses?limit=6`),
-                    axios.get(`${API}/faqs`)
+                    axios.get(`${API}/faqs`),
+                    axios.get(`${API}/cms`)
                 ]);
                 setCourses(coursesRes.data.courses || []);
                 setFaqs(faqsRes.data.faqs || []);
+                
+                const sections = cmsRes.data.sections || {};
+                setCms(sections);
+                
+                // Update stats from CMS if available
+                if (sections.home?.stats) {
+                    setStats(sections.home.stats);
+                }
             } catch (error) {
                 console.error("Failed to fetch data:", error);
             }
         };
         fetchData();
     }, []);
+
+    // Get CMS content with fallbacks
+    const hero = cms?.home?.hero || {
+        title: "Master New Skills with",
+        brand: "Chand Web Technology",
+        subtitle: "Join thousands of students learning from industry experts. Get access to premium courses and earn while you learn.",
+        cta_primary: "Browse Courses",
+        cta_secondary: "Get Started Free",
+        badge: "#1 Online Learning Platform"
+    };
 
     return (
         <div className="bg-[#0F172A]">
