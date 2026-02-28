@@ -2425,10 +2425,12 @@ async def admin_create_course(data: CourseCreate, current_user: dict = Depends(g
 @api_router.put("/admin/courses/{course_id}")
 async def admin_update_course(
     course_id: str,
-    data: CourseCreate,
+    data: dict,
     current_user: dict = Depends(get_admin_user)
 ):
-    update_data = data.model_dump()
+    """Update course - accepts partial updates"""
+    # Filter out None values and prepare update
+    update_data = {k: v for k, v in data.items() if v is not None}
     update_data["updated_at"] = datetime.now(timezone.utc).isoformat()
     
     await db.courses.update_one({"id": course_id}, {"$set": update_data})
