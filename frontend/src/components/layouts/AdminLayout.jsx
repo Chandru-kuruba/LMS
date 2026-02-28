@@ -27,7 +27,6 @@ const adminLinks = [
     { icon: Users, label: "Users", href: "/admin/users" },
     { icon: BookOpen, label: "Courses", href: "/admin/courses" },
     { icon: Award, label: "Certificates", href: "/admin/certificates" },
-    { icon: Award, label: "Templates", href: "/admin/certificate-templates" },
     { icon: Bell, label: "Notifications", href: "/admin/notifications" },
     { icon: DollarSign, label: "Withdrawals", href: "/admin/withdrawals" },
     { icon: MessageSquare, label: "Tickets", href: "/admin/tickets" },
