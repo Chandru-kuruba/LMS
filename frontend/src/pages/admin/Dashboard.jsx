@@ -53,7 +53,7 @@ export default function AdminDashboard() {
         {
             icon: DollarSign,
             label: "Total Revenue",
-            value: `$${stats?.total_revenue?.toFixed(2) || "0.00"}`,
+            value: `₹{stats?.total_revenue?.toFixed(2) || "0.00"}`,
             trend: "+12%",
             trendUp: true,
             color: "from-green-500 to-emerald-400"
@@ -220,7 +220,7 @@ export default function AdminDashboard() {
                             <div>
                                 <p className="text-sm text-slate-500">Total Commissions</p>
                                 <p className="font-outfit text-xl font-bold text-white">
-                                    {isLoading ? <Skeleton className="h-7 w-20" /> : `$${stats?.total_commissions?.toFixed(2) || "0.00"}`}
+                                    {isLoading ? <Skeleton className="h-7 w-20" /> : `₹{stats?.total_commissions?.toFixed(2) || "0.00"}`}
                                 </p>
                             </div>
                         </div>

@@ -147,19 +147,19 @@ export default function ReferralPage() {
                     {
                         icon: DollarSign,
                         label: "Total Earnings",
-                        value: `$${stats?.total_earnings?.toFixed(2) || "0.00"}`,
+                        value: `₹{stats?.total_earnings?.toFixed(2) || "0.00"}`,
                         color: "from-green-500 to-emerald-400"
                     },
                     {
                         icon: Clock,
                         label: "Pending",
-                        value: `$${stats?.pending_earnings?.toFixed(2) || "0.00"}`,
+                        value: `₹{stats?.pending_earnings?.toFixed(2) || "0.00"}`,
                         color: "from-yellow-500 to-orange-400"
                     },
                     {
                         icon: Wallet,
                         label: "Available",
-                        value: `$${stats?.available_earnings?.toFixed(2) || "0.00"}`,
+                        value: `₹{stats?.available_earnings?.toFixed(2) || "0.00"}`,
                         color: "from-purple-600 to-purple-400"
                     },
                     {
