@@ -112,45 +112,52 @@ export default function ContactPage() {
                                     </div>
                                     <div>
                                         <h3 className="font-semibold text-white mb-1">Email</h3>
-                                        <a href={`mailto:${content.email || "support@lumina.com"}`} className="text-slate-400 hover:text-purple-400 transition-colors">
-                                            {content.email || "support@lumina.com"}
+                                        <a href={`mailto:${content.email}`} className="text-slate-400 hover:text-purple-400 transition-colors block">
+                                            {content.email}
+                                        </a>
+                                        {content.secondary_email && (
+                                            <a href={`mailto:${content.secondary_email}`} className="text-slate-400 hover:text-purple-400 transition-colors block text-sm">
+                                                {content.secondary_email}
+                                            </a>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="flex items-start gap-4">
+                                    <div className="w-12 h-12 rounded-xl bg-cyan-600/20 flex items-center justify-center flex-shrink-0">
+                                        <Phone className="w-6 h-6 text-cyan-400" />
+                                    </div>
+                                    <div>
+                                        <h3 className="font-semibold text-white mb-1">Phone</h3>
+                                        <a href={`tel:${content.phone}`} className="text-slate-400 hover:text-cyan-400 transition-colors">
+                                            {content.phone}
                                         </a>
                                     </div>
                                 </div>
 
-                                {content.phone && (
-                                    <div className="flex items-start gap-4">
-                                        <div className="w-12 h-12 rounded-xl bg-cyan-600/20 flex items-center justify-center flex-shrink-0">
-                                            <Phone className="w-6 h-6 text-cyan-400" />
-                                        </div>
-                                        <div>
-                                            <h3 className="font-semibold text-white mb-1">Phone</h3>
-                                            <p className="text-slate-400">{content.phone}</p>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {content.address && (
-                                    <div className="flex items-start gap-4">
-                                        <div className="w-12 h-12 rounded-xl bg-pink-600/20 flex items-center justify-center flex-shrink-0">
-                                            <MapPin className="w-6 h-6 text-pink-400" />
-                                        </div>
-                                        <div>
-                                            <h3 className="font-semibold text-white mb-1">Address</h3>
-                                            <p className="text-slate-400">{content.address}</p>
-                                        </div>
-                                    </div>
-                                )}
-
                                 <div className="flex items-start gap-4">
-                                    <div className="w-12 h-12 rounded-xl bg-green-600/20 flex items-center justify-center flex-shrink-0">
-                                        <MessageCircle className="w-6 h-6 text-green-400" />
+                                    <div className="w-12 h-12 rounded-xl bg-pink-600/20 flex items-center justify-center flex-shrink-0">
+                                        <MapPin className="w-6 h-6 text-pink-400" />
                                     </div>
                                     <div>
-                                        <h3 className="font-semibold text-white mb-1">Live Chat</h3>
-                                        <p className="text-slate-400">Available 24/7 for premium members</p>
+                                        <h3 className="font-semibold text-white mb-1">Address</h3>
+                                        <p className="text-slate-400">{content.address}</p>
                                     </div>
                                 </div>
+
+                                {content.website && (
+                                    <div className="flex items-start gap-4">
+                                        <div className="w-12 h-12 rounded-xl bg-green-600/20 flex items-center justify-center flex-shrink-0">
+                                            <MessageCircle className="w-6 h-6 text-green-400" />
+                                        </div>
+                                        <div>
+                                            <h3 className="font-semibold text-white mb-1">Website</h3>
+                                            <a href={`https://${content.website}`} target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-green-400 transition-colors">
+                                                {content.website}
+                                            </a>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
 
