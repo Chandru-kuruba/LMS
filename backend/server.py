@@ -3158,6 +3158,18 @@ async def track_certificate_print(certificate_id: str, current_user: dict = Depe
         raise HTTPException(status_code=404, detail="Certificate not found")
     return {"message": "Print tracked"}
 
+# Public certificate verification
+@api_router.get("/public/certificates/verify/{certificate_id}")
+async def verify_certificate(certificate_id: str):
+    """Public endpoint to verify a certificate"""
+    certificate = await db.certificates.find_one(
+        {"certificate_id": certificate_id},
+        {"_id": 0, "user_id": 0}  # Don't expose user_id
+    )
+    if not certificate:
+        raise HTTPException(status_code=404, detail="Certificate not found")
+    return {"certificate": certificate, "verified": True}
+
 # Admin certificate routes
 @api_router.get("/admin/certificates")
 async def admin_get_all_certificates(current_user: dict = Depends(get_admin_user)):
