@@ -1497,7 +1497,7 @@ async def payment_success(
                             }
                         )
                         
-                        logger.info(f"Referral commission: ${commission_amount:.2f} to {referrer['email']} for course {course['title']}")
+                        logger.info(f"Referral commission: ₹{commission_amount:.2f} to {referrer['email']} for course {course['title']}")
         
         # Record coupon use
         if order.get("coupon_code"):
