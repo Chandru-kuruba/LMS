@@ -15,47 +15,46 @@ Chand Web Technology Learning Management System - MSME registered and ISO 9001:2
 
 ## What's Been Implemented (Feb 28, 2026)
 
-### ✅ Core Features
+### Latest Updates - Certificate Design Improvements
 
-#### 1. Course Publishing - FIXED
-- `PUT /admin/courses/{id}` accepts partial updates for publishing
+#### 1. Certificate Size - A4 Landscape Format (297mm × 210mm)
+- Certificate dimensions now exactly 297mm × 210mm (A4 Landscape)
+- Print-ready with proper margins maintained
+- No stretching or distortion in PDF export
+- Preview maintains correct aspect ratio in admin editor
 
-#### 2. Full Dynamic CMS Control - IMPLEMENTED
-- All website content editable from Admin CMS panel
-- Hero section, Stats, Features, Navbar, Footer all dynamic
-- Pages: home, about, contact, privacy, terms, refund, careers
+#### 2. Increased Logo Size & Controls
+- **Default Logo Size**: 300px width × 120px height (~75mm × 30mm in print)
+- **Adjustable Width**: 100px to 600px with slider control
+- **Adjustable Height**: 40px to 250px with slider control
+- **Size Presets**: Small (200×80), Medium (300×120), Large (400×160)
+- **Maintain Aspect Ratio**: Toggle option for proportional resizing
+- High resolution logo support (no blur on download/print)
 
-#### 3. Certificate System - FULLY IMPLEMENTED
-- **Certificate Generation**: Students can request certificates upon course completion
-- **Email Notifications**: Automatic email with download and verification links
-- **Public Verification**: `/verify/{certificate_id}` for authenticity check
-- **Admin Certificate Management**: View, search by ID, edit, unlock name editing
-- **Certificate Templates**: Full design control with advanced editor
+#### 3. Drag-and-Drop Logo Positioning
+- **Main Company Logo**: Draggable in live preview
+- **Additional Logos (MSME, ISO)**: Each individually draggable
+- **Live Preview**: Real-time updates while adjusting positions
+- **Position Controls**: X/Y sliders + drag-and-drop
+- **Visual Feedback**: Purple highlight ring on hover for draggable elements
 
-#### 4. Admin Notification System - IMPLEMENTED (Feb 28, 2026)
-- Send notifications to all users or selected users
-- Optional email notifications with professional template
-- Notification history with type, recipient count, date
-- Individual notifications stored per user
-- Admin endpoints: `GET/POST /admin/notifications`, `DELETE /admin/notifications/{id}`
+### Previous Implementations
 
-#### 5. Profile Image System - FIXED (Feb 28, 2026)
-- Profile images stored in MongoDB as base64
-- `/auth/me` now returns `profile_image_url`
-- Profile images display in Dashboard and Admin sidebars
-- Fallback to generated avatars if no image uploaded
+#### Core Features
+- Course Publishing - Fixed
+- Full Dynamic CMS Control - Implemented
+- Certificate System - Fully Implemented
+- Admin Notification System - Implemented
+- Profile Image System - Fixed
 
----
-
-### ✅ Admin Panel Features
-
+#### Admin Panel Features
 | Page | Route | Status |
 |------|-------|--------|
 | Dashboard | `/admin` | ✅ Working |
 | Users | `/admin/users` | ✅ Working |
 | Courses | `/admin/courses` | ✅ Working |
 | Certificates | `/admin/certificates` | ✅ Working |
-| Certificate Templates | `/admin/certificate-templates` | ✅ Working |
+| Certificate Design | `/admin/certificate-design` | ✅ Enhanced |
 | Notifications | `/admin/notifications` | ✅ Working |
 | Withdrawals | `/admin/withdrawals` | ✅ Working |
 | Tickets | `/admin/tickets` | ✅ Working |
@@ -63,34 +62,30 @@ Chand Web Technology Learning Management System - MSME registered and ISO 9001:2
 
 ---
 
-### ✅ Certificate Template Editor Features
-- **Basic Tab**: Template name, background image, logo image with size controls
-- **Text Tab**: Recipient name styling, course title styling, signature settings
-- **Elements Tab**: QR code toggle/size, date settings, certificate ID settings
-- **Position Tab**: X/Y positioning for all elements (logo, name, course, signature, date, cert ID, QR code)
-- **Live Preview**: Real-time preview showing all elements positioned
+### Certificate Template Editor Features
+- **Layout Tab**: Background color/image, border settings, decorative corners, QR code toggle
+- **Text Tab**: Header, recipient name, course title, signature settings with font controls
+- **Logos Tab**: 
+  - Main logo URL, adjustable width/height sliders
+  - Size presets (Small/Medium/Large)
+  - Maintain aspect ratio toggle
+  - Drag-and-drop positioning info
+  - Additional logos (MSME, ISO) with individual controls
+- **Position Tab**: X/Y positioning for all elements
+- **Live Preview**: Real-time preview with A4 Landscape dimensions, draggable logos
 
 ---
 
 ### API Endpoints Summary
 
-#### Admin Notifications
-- `GET /api/admin/notifications` - List all sent notifications
-- `POST /api/admin/notifications/send` - Send notification to users
-- `DELETE /api/admin/notifications/{id}` - Delete notification
+#### Admin Certificate Design
+- `GET /api/admin/certificate-design` - Get global certificate design settings
+- `PUT /api/admin/certificate-design` - Update global certificate design
 
 #### Admin Certificates
 - `GET /api/admin/certificates` - List all certificates
-- `GET /api/admin/certificates/search?certificate_id=xxx` - Search by ID
 - `PUT /api/admin/certificates/{id}` - Update certificate details
 - `POST /api/admin/certificates/{id}/unlock-name` - Allow user to edit name
-
-#### Certificate Templates
-- `GET /api/admin/certificate-templates` - List templates
-- `POST /api/admin/certificate-templates` - Create template
-- `PUT /api/admin/certificate-templates/{id}` - Update template
-- `DELETE /api/admin/certificate-templates/{id}` - Delete template
-- `POST /api/admin/certificate-templates/{id}/assign` - Assign to course
 
 ---
 
@@ -117,19 +112,19 @@ Chand Web Technology Learning Management System - MSME registered and ISO 9001:2
 ### P2 - Enhancements
 - [ ] Bulk user selection for notifications
 - [ ] Certificate batch generation
-- [ ] Export certificates as PDF
+- [ ] Export certificates as PDF directly from admin
 - [ ] Advanced analytics dashboard
 
 ### P3 - Technical Debt
 - [ ] Refactor server.py into multiple router files
 - [ ] Add unit tests for new endpoints
-- [ ] Fix React hydration warnings in admin dashboard
+- [ ] Consider server-side PDF generation with ReportLab
 
 ---
 
-## Known Issues
-- **Platform Caching**: External preview URL may serve stale CMS data. Verify with local curl commands.
-- **Admin Dashboard Warnings**: Framer-motion hydration warnings (non-critical, cosmetic only)
+## Updated Files (Feb 28, 2026)
+- `/app/frontend/src/pages/admin/CertificateDesignPage.jsx` - Enhanced with A4 dimensions, drag-and-drop, adjustable logo controls
+- `/app/frontend/src/pages/student/CertificatesPage.jsx` - Updated print template with A4 Landscape and larger logo
 
 ---
 
