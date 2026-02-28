@@ -469,7 +469,7 @@ def send_payment_confirmation_email(to_email: str, user_name: str, order_total: 
             <h1>Payment Successful!</h1>
             <p>Hi {user_name},</p>
             <p>Thank you for your purchase! Your payment has been confirmed.</p>
-            <p class="amount">${order_total:.2f}</p>
+            <p class="amount">₹{order_total:.2f}</p>
             <p><strong>Courses Purchased:</strong></p>
             <ul>{course_list}</ul>
             <p>You can now access your courses from your dashboard. Happy learning!</p>
