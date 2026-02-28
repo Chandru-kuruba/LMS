@@ -790,13 +790,13 @@ export default function CertificateDesignPage() {
                 {/* Live Preview - 3 columns */}
                 <div className="lg:col-span-3 space-y-2">
                     <div className="flex items-center justify-between">
-                        <Label className="text-slate-300">Live Preview (1100 x 780px)</Label>
+                        <Label className="text-slate-300">Live Preview (A4 Landscape - 297mm × 210mm)</Label>
                         <span className="text-xs text-purple-400">Global Template</span>
                     </div>
                     <div 
                         className="relative w-full rounded-lg overflow-hidden"
                         style={{
-                            aspectRatio: "1100/780",
+                            aspectRatio: "1190/842",
                             backgroundColor: design.background_color,
                             backgroundImage: design.background_image ? `url(${design.background_image})` : undefined,
                             backgroundSize: 'cover',
@@ -814,13 +814,13 @@ export default function CertificateDesignPage() {
                             </>
                         )}
 
-                        {/* Main Logo */}
+                        {/* Main Logo - LARGER */}
                         {design.show_logo && (
                             <div 
                                 className="absolute flex items-center justify-center"
                                 style={{
-                                    left: `${(design.logo_position?.x || 550) / 11}%`,
-                                    top: `${(design.logo_position?.y || 60) / 7.8}%`,
+                                    left: `${(design.logo_position?.x || 150) / 11.9}%`,
+                                    top: `${(design.logo_position?.y || 70) / 8.42}%`,
                                     transform: 'translate(-50%, -50%)',
                                 }}
                             >
@@ -828,8 +828,8 @@ export default function CertificateDesignPage() {
                                     src={design.logo_url || COMPANY_LOGO} 
                                     alt="Logo" 
                                     style={{
-                                        maxWidth: `${(design.logo_size?.width || 180) / 5}px`,
-                                        maxHeight: `${(design.logo_size?.height || 60) / 2.5}px`,
+                                        width: `${(design.logo_size?.width || 250) / 4}px`,
+                                        height: `${(design.logo_size?.height || 100) / 4}px`,
                                     }}
                                     className="object-contain"
                                 />
@@ -840,10 +840,10 @@ export default function CertificateDesignPage() {
                         <div 
                             className="absolute text-center whitespace-nowrap"
                             style={{
-                                left: `${(design.header_position?.x || 550) / 11}%`,
-                                top: `${(design.header_position?.y || 120) / 7.8}%`,
+                                left: `${(design.header_position?.x || 595) / 11.9}%`,
+                                top: `${(design.header_position?.y || 140) / 8.42}%`,
                                 transform: 'translate(-50%, -50%)',
-                                fontSize: `${design.header_font_size / 2.5}px`,
+                                fontSize: `${design.header_font_size / 2.2}px`,
                                 color: design.header_color,
                                 letterSpacing: `${design.header_letter_spacing}em`
                             }}
