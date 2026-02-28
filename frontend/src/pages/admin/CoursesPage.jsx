@@ -357,15 +357,15 @@ export default function AdminCoursesPage() {
                                         {course.discount_price ? (
                                             <div className="flex items-center gap-2">
                                                 <span className="text-slate-500 line-through text-sm">
-                                                    ${course.price}
+                                                    ₹{course.price}
                                                 </span>
                                                 <span className="text-lg font-bold text-purple-400">
-                                                    ${course.discount_price}
+                                                    ₹{course.discount_price}
                                                 </span>
                                             </div>
                                         ) : (
                                             <span className="text-lg font-bold text-purple-400">
-                                                ${course.price}
+                                                ₹{course.price}
                                             </span>
                                         )}
                                     </div>
