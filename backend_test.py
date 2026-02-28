@@ -6,7 +6,8 @@ from datetime import datetime
 
 class LMSTestSuite:
     def __init__(self):
-        self.base_url = "https://skill-exchange-110.preview.emergentagent.com/api"
+        # Use localhost as mentioned in testing instructions
+        self.base_url = "http://localhost:8001/api"
         self.admin_token = None
         self.student_token = None
         self.tests_run = 0
