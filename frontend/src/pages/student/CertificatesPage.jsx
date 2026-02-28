@@ -104,7 +104,7 @@ export default function CertificatesPage() {
             console.error("Failed to track print:", error);
         }
 
-        // Open print-friendly version with new design
+        // Open print-friendly version with A4 Landscape design (297mm × 210mm)
         const printWindow = window.open('', '_blank');
         printWindow.document.write(`
             <!DOCTYPE html>
@@ -114,19 +114,34 @@ export default function CertificatesPage() {
                 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Great+Vibes&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
                 <style>
                     @page { 
-                        size: 297mm 210mm landscape;
+                        size: 297mm 210mm;
                         margin: 0; 
                     }
                     @media print {
-                        body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-                        .certificate { width: 297mm !important; height: 210mm !important; }
+                        html, body { 
+                            width: 297mm;
+                            height: 210mm;
+                            margin: 0;
+                            padding: 0;
+                            -webkit-print-color-adjust: exact; 
+                            print-color-adjust: exact;
+                        }
+                        .certificate { 
+                            width: 297mm !important; 
+                            height: 210mm !important;
+                            page-break-after: avoid;
+                        }
                     }
                     * { margin: 0; padding: 0; box-sizing: border-box; }
+                    
+                    html, body {
+                        width: 297mm;
+                        height: 210mm;
+                    }
                     
                     body {
                         font-family: 'Outfit', sans-serif;
                         background: #0a0a0a;
-                        min-height: 100vh;
                         display: flex;
                         align-items: center;
                         justify-content: center;
@@ -139,7 +154,7 @@ export default function CertificatesPage() {
                         background: linear-gradient(145deg, #1a1a2e 0%, #0d0d1a 50%, #1a1a2e 100%);
                         border: 4px solid;
                         border-image: linear-gradient(135deg, #ffd700, #ff8c00, #ffd700) 1;
-                        padding: 15mm 20mm;
+                        padding: 12mm 18mm;
                         position: relative;
                         overflow: hidden;
                     }
@@ -159,10 +174,10 @@ export default function CertificatesPage() {
                     
                     .inner-border {
                         position: absolute;
-                        top: 8mm;
-                        left: 8mm;
-                        right: 8mm;
-                        bottom: 8mm;
+                        top: 6mm;
+                        left: 6mm;
+                        right: 6mm;
+                        bottom: 6mm;
                         border: 2px solid rgba(255, 215, 0, 0.3);
                         pointer-events: none;
                     }
@@ -171,13 +186,14 @@ export default function CertificatesPage() {
                         display: flex;
                         justify-content: space-between;
                         align-items: flex-start;
-                        margin-bottom: 10mm;
+                        margin-bottom: 8mm;
                     }
                     
+                    /* LARGER LOGO - 200px width equivalent in mm */
                     .company-logo {
-                        width: 55mm;
+                        width: 65mm;
                         height: auto;
-                        max-height: 20mm;
+                        max-height: 25mm;
                         object-fit: contain;
                     }
                     
@@ -188,46 +204,46 @@ export default function CertificatesPage() {
                     }
                     
                     .cert-logo {
-                        height: 15mm;
+                        height: 18mm;
                         width: auto;
                         object-fit: contain;
                     }
                     
                     .main-content {
                         text-align: center;
-                        padding: 5mm 0;
+                        padding: 3mm 0;
                     }
                     
                     .certificate-title {
                         font-family: 'Playfair Display', serif;
-                        font-size: 14mm;
+                        font-size: 16mm;
                         font-weight: 700;
                         color: #ffd700;
                         text-transform: uppercase;
-                        letter-spacing: 3mm;
+                        letter-spacing: 4mm;
                         margin-bottom: 2mm;
                         text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
                     }
                     
                     .certificate-subtitle {
-                        font-size: 5mm;
+                        font-size: 5.5mm;
                         color: #94a3b8;
-                        letter-spacing: 1.5mm;
+                        letter-spacing: 2mm;
                         text-transform: uppercase;
-                        margin-bottom: 8mm;
+                        margin-bottom: 6mm;
                     }
                     
                     .presented-to {
-                        font-size: 4.5mm;
+                        font-size: 5mm;
                         color: #94a3b8;
                         margin-bottom: 3mm;
                     }
                     
                     .recipient-name {
                         font-family: 'Great Vibes', cursive;
-                        font-size: 20mm;
+                        font-size: 22mm;
                         color: #ffd700;
-                        margin: 3mm 0 6mm;
+                        margin: 3mm 0 5mm;
                         text-shadow: 2px 2px 4px rgba(255, 215, 0, 0.2);
                     }
                     
@@ -239,17 +255,17 @@ export default function CertificatesPage() {
                     
                     .course-name {
                         font-family: 'Playfair Display', serif;
-                        font-size: 8mm;
+                        font-size: 9mm;
                         font-weight: 600;
                         color: #60a5fa;
-                        margin-bottom: 8mm;
+                        margin-bottom: 6mm;
                     }
                     
                     .details-row {
                         display: flex;
                         justify-content: center;
-                        gap: 20mm;
-                        margin-bottom: 8mm;
+                        gap: 25mm;
+                        margin-bottom: 6mm;
                     }
                     
                     .detail-item {
@@ -257,7 +273,7 @@ export default function CertificatesPage() {
                     }
                     
                     .detail-label {
-                        font-size: 3mm;
+                        font-size: 3.5mm;
                         color: #64748b;
                         text-transform: uppercase;
                         letter-spacing: 0.5mm;
@@ -265,7 +281,7 @@ export default function CertificatesPage() {
                     }
                     
                     .detail-value {
-                        font-size: 4mm;
+                        font-size: 4.5mm;
                         color: #e2e8f0;
                     }
                     
@@ -273,41 +289,41 @@ export default function CertificatesPage() {
                         display: flex;
                         justify-content: space-between;
                         align-items: flex-end;
-                        padding: 0 25mm;
+                        padding: 0 20mm;
                         position: absolute;
-                        bottom: 18mm;
-                        left: 15mm;
-                        right: 15mm;
+                        bottom: 15mm;
+                        left: 12mm;
+                        right: 12mm;
                     }
                     
                     .signature-box {
                         text-align: center;
-                        width: 60mm;
+                        width: 65mm;
                     }
                     
                     .signature {
                         font-family: 'Great Vibes', cursive;
-                        font-size: 10mm;
+                        font-size: 11mm;
                         color: #ffd700;
                         border-bottom: 2px solid #ffd700;
-                        padding-bottom: 5px;
-                        margin-bottom: 8px;
+                        padding-bottom: 1mm;
+                        margin-bottom: 2mm;
                     }
                     
                     .signature-name {
-                        font-size: 14px;
+                        font-size: 4mm;
                         color: #e2e8f0;
                         font-weight: 600;
                     }
                     
                     .signature-title {
-                        font-size: 11px;
+                        font-size: 3mm;
                         color: #64748b;
                     }
                     
                     .cert-id-section {
                         position: absolute;
-                        bottom: 20px;
+                        bottom: 5mm;
                         left: 50%;
                         transform: translateX(-50%);
                         text-align: center;
@@ -315,27 +331,32 @@ export default function CertificatesPage() {
                     
                     .cert-id {
                         font-family: monospace;
-                        font-size: 11px;
+                        font-size: 3mm;
                         color: #64748b;
                         letter-spacing: 1px;
                     }
                     
                     .verification-text {
-                        font-size: 9px;
+                        font-size: 2.5mm;
                         color: #475569;
-                        margin-top: 3px;
+                        margin-top: 1mm;
                     }
                     
-                    @media print {
-                        body { 
-                            background: white; 
-                            padding: 0; 
-                            -webkit-print-color-adjust: exact;
-                            print-color-adjust: exact;
-                        }
-                        .certificate { 
-                            box-shadow: none;
-                        }
+                    /* QR Code positioning */
+                    .qr-section {
+                        position: absolute;
+                        bottom: 12mm;
+                        right: 15mm;
+                    }
+                    
+                    .qr-placeholder {
+                        width: 25mm;
+                        height: 25mm;
+                        background: white;
+                        border-radius: 2mm;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
                     }
                 </style>
             </head>
