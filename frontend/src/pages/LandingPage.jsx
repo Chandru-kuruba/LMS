@@ -124,14 +124,14 @@ export default function LandingPage() {
                             <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4">
                                 <Link to="/courses">
                                     <Button className="btn-primary text-lg py-4 px-8 w-full sm:w-auto" data-testid="hero-browse-btn">
-                                        Browse Courses
+                                        {hero.cta_primary || "Browse Courses"}
                                         <ArrowRight className="w-5 h-5 ml-2" />
                                     </Button>
                                 </Link>
                                 <Link to="/register">
                                     <Button className="btn-secondary text-lg py-4 px-8 w-full sm:w-auto" data-testid="hero-signup-btn">
                                         <Play className="w-5 h-5 mr-2" />
-                                        Get Started Free
+                                        {hero.cta_secondary || "Get Started Free"}
                                     </Button>
                                 </Link>
                             </motion.div>
