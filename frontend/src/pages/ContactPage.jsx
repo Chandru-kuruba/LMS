@@ -11,8 +11,18 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
+const defaultContact = {
+    title: "Contact Us",
+    description: "Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible.",
+    email: "info@chandwebtechnology.com",
+    secondary_email: "chanduh345@gmail.com",
+    phone: "+91 72043 43968",
+    website: "chandwebtechnology.com",
+    address: "No. 8 Ground Floor, 6th Cross, Ayyappanagar, Krishnarajapuram, Bangalore, Karnataka – 560036"
+};
+
 export default function ContactPage() {
-    const [content, setContent] = useState(null);
+    const [content, setContent] = useState(defaultContact);
     const [isLoading, setIsLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formData, setFormData] = useState({
@@ -29,9 +39,11 @@ export default function ContactPage() {
     const fetchContent = async () => {
         try {
             const response = await axios.get(`${API}/public/cms/contact`);
-            setContent(response.data.content || {});
+            if (response.data.content) {
+                setContent({ ...defaultContact, ...response.data.content });
+            }
         } catch (error) {
-            setContent({});
+            console.log("Using default contact content");
         } finally {
             setIsLoading(false);
         }
