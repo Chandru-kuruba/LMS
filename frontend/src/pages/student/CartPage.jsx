@@ -141,7 +141,7 @@ export default function CartPage() {
                                 </div>
                                 <div className="flex justify-between text-slate-400">
                                     <span>Discount</span>
-                                    <span className="text-green-400">-$0.00</span>
+                                    <span className="text-green-400">-₹0.00</span>
                                 </div>
                                 <hr className="border-white/10" />
                                 <div className="flex justify-between text-white font-semibold text-lg">

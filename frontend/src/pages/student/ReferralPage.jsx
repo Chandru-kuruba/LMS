@@ -64,7 +64,7 @@ export default function ReferralPage() {
 
     const handleWithdraw = async () => {
         if (!withdrawAmount || parseFloat(withdrawAmount) < 10) {
-            toast.error("Minimum withdrawal amount is $10");
+            toast.error("Minimum withdrawal amount is ₹500");
             return;
         }
         if (!bankDetails.trim()) {
@@ -194,7 +194,7 @@ export default function ReferralPage() {
                         Request Withdrawal
                     </h3>
                     <p className="text-slate-400 mb-4">
-                        Minimum withdrawal: $10. Available balance: 
+                        Minimum withdrawal: ₹500. Available balance: 
                         <span className="text-green-400 font-semibold ml-1">
                             ${stats?.available_earnings?.toFixed(2) || "0.00"}
                         </span>
