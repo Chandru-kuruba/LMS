@@ -141,7 +141,7 @@ export default function AdminWithdrawalsPage() {
                                         </td>
                                         <td className="p-4">
                                             <span className="font-semibold text-green-400">
-                                                ${withdrawal.amount?.toFixed(2)}
+                                                ₹{withdrawal.amount?.toFixed(2)}
                                             </span>
                                         </td>
                                         <td className="p-4 text-slate-400 max-w-xs truncate">
