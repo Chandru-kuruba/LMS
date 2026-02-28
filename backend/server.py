@@ -941,10 +941,14 @@ async def reset_password(data: PasswordResetConfirm):
 
 @api_router.get("/auth/me")
 async def get_me(current_user: dict = Depends(get_current_user)):
-    user_data = {k: v for k, v in current_user.items() if k != "password"}
+    user_data = {k: v for k, v in current_user.items() if k not in ["password", "profile_image"]}
     
-    # Generate signed URL for profile image if exists
-    if user_data.get("profile_image_key"):
+    # Generate profile image URL if exists (stored in MongoDB)
+    if current_user.get("profile_image") and current_user["profile_image"].get("data"):
+        content_type = current_user["profile_image"].get("content_type", "image/jpeg")
+        user_data["profile_image_url"] = f"data:{content_type};base64,{current_user['profile_image']['data']}"
+    # Fallback to R2 if using that storage
+    elif user_data.get("profile_image_key"):
         signed_url = get_r2_signed_url(user_data["profile_image_key"], expiry_seconds=600)
         if signed_url:
             user_data["profile_image_url"] = signed_url
