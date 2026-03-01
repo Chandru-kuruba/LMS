@@ -686,6 +686,36 @@ def upload_to_r2(file_data: bytes, object_key: str, content_type: str = "applica
         logger.error(f"Failed to upload to R2: {e}")
         return False
 
+def upload_large_file_to_r2(file, object_key: str, content_type: str = "application/octet-stream") -> bool:
+    """Upload large file to Cloudflare R2 using multipart upload"""
+    if not r2_client:
+        logger.warning("R2 client not initialized")
+        return False
+    
+    try:
+        # Use multipart upload for large files
+        from boto3.s3.transfer import TransferConfig
+        
+        config = TransferConfig(
+            multipart_threshold=50 * 1024 * 1024,  # 50MB
+            max_concurrency=10,
+            multipart_chunksize=50 * 1024 * 1024,  # 50MB chunks
+            use_threads=True
+        )
+        
+        r2_client.upload_fileobj(
+            file,
+            R2_BUCKET_NAME,
+            object_key,
+            Config=config,
+            ExtraArgs={'ContentType': content_type}
+        )
+        logger.info(f"Uploaded large file {object_key} to R2")
+        return True
+    except Exception as e:
+        logger.error(f"Failed to upload large file to R2: {e}")
+        return False
+
 def get_r2_signed_url(object_key: str, expiry_seconds: int = 3600) -> Optional[str]:
     """Generate a signed URL for R2 object"""
     if not r2_client:
