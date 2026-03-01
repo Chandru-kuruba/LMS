@@ -715,6 +715,23 @@ def send_certificate_email(to_email: str, user_name: str, course_title: str, cer
 
 # ======================== R2 STORAGE FUNCTIONS ========================
 
+def get_r2_client_for_bucket(bucket_config: dict):
+    """Create an R2 client for a specific bucket configuration"""
+    try:
+        endpoint = f"https://{bucket_config['account_id']}.r2.cloudflarestorage.com"
+        client = boto3.client(
+            's3',
+            endpoint_url=endpoint,
+            aws_access_key_id=bucket_config['access_key_id'],
+            aws_secret_access_key=bucket_config['secret_access_key'],
+            config=Config(signature_version='s3v4'),
+            region_name='auto'
+        )
+        return client
+    except Exception as e:
+        logger.error(f"Failed to create R2 client: {e}")
+        return None
+
 def upload_to_r2(file_data: bytes, object_key: str, content_type: str = "application/octet-stream") -> bool:
     """Upload file to Cloudflare R2"""
     if not r2_client:
