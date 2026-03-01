@@ -708,14 +708,34 @@ export default function CourseEditorPage() {
                             </div>
                         </div>
                         {lessonForm.content_type === "video" && (
-                            <div className="space-y-2">
-                                <Label className="text-slate-300">Video</Label>
+                            <div className="space-y-3">
+                                <Label className="text-slate-300">Storage Bucket</Label>
+                                {availableBuckets.length > 0 ? (
+                                    <select
+                                        value={selectedBucket}
+                                        onChange={(e) => setSelectedBucket(e.target.value)}
+                                        className="w-full h-10 px-3 rounded-lg bg-slate-800 border border-slate-700 text-white"
+                                    >
+                                        {availableBuckets.map(bucket => (
+                                            <option key={bucket.id} value={bucket.id}>
+                                                {bucket.name} ({bucket.bucket_name}) {bucket.is_default ? '- Default' : ''}
+                                            </option>
+                                        ))}
+                                    </select>
+                                ) : (
+                                    <p className="text-sm text-yellow-400">
+                                        No storage buckets configured. Go to Settings → R2 Buckets to add one.
+                                    </p>
+                                )}
+                                
+                                <Label className="text-slate-300">Video File</Label>
                                 <div className="flex items-center gap-4">
                                     <Input
                                         type="file"
                                         accept="video/*"
                                         onChange={handleVideoUpload}
                                         className="input-neon"
+                                        disabled={availableBuckets.length === 0}
                                     />
                                     {uploadProgress !== null && (
                                         <div className="flex items-center gap-2">
@@ -727,7 +747,7 @@ export default function CourseEditorPage() {
                                 {lessonForm.video_key && (
                                     <p className="text-sm text-green-400 flex items-center gap-1">
                                         <Check className="w-4 h-4" />
-                                        Video uploaded: {lessonForm.video_key}
+                                        Video uploaded: {lessonForm.video_key.split(':').pop()}
                                     </p>
                                 )}
                             </div>
