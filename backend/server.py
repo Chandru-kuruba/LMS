@@ -2798,18 +2798,44 @@ async def admin_upload_video(
 ):
     ext = file.filename.split(".")[-1] if "." in file.filename else "mp4"
     object_key = f"videos/{uuid.uuid4()}.{ext}"
+    content_type = file.content_type or "video/mp4"
     
-    data = await file.read()
-    
-    # Try R2 first
+    # For large files, use streaming upload to R2
     if r2_client:
-        success = upload_to_r2(data, object_key, file.content_type or "video/mp4")
-        if success:
-            return {"video_key": object_key, "size": len(data), "storage": "r2"}
+        try:
+            # Create a temporary file to stream the upload
+            import tempfile
+            import shutil
+            
+            with tempfile.SpooledTemporaryFile(max_size=100*1024*1024) as tmp:  # 100MB in memory, then disk
+                # Stream the file in chunks
+                total_size = 0
+                chunk_size = 10 * 1024 * 1024  # 10MB chunks
+                
+                while True:
+                    chunk = await file.read(chunk_size)
+                    if not chunk:
+                        break
+                    tmp.write(chunk)
+                    total_size += len(chunk)
+                
+                # Reset file position
+                tmp.seek(0)
+                
+                # Upload to R2
+                success = upload_large_file_to_r2(tmp, object_key, content_type)
+                if success:
+                    return {"video_key": object_key, "size": total_size, "storage": "r2"}
+                else:
+                    raise HTTPException(status_code=500, detail="Failed to upload video to storage")
+        except Exception as e:
+            logger.error(f"Error uploading video: {e}")
+            raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
     
-    # Fallback to emergent storage
+    # Fallback to emergent storage (for smaller files only)
+    data = await file.read()
     path = f"{APP_NAME}/{object_key}"
-    result = put_object(path, data, file.content_type or "video/mp4")
+    result = put_object(path, data, content_type)
     return {"video_key": result["path"], "size": result["size"], "storage": "emergent"}
 
 @api_router.post("/admin/upload/image")
