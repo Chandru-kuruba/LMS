@@ -51,6 +51,7 @@ import AdminUserPerformancePage from "@/pages/admin/UserPerformancePage";
 import AdminNotificationsPage from "@/pages/admin/NotificationsPage";
 import AdminCertificatesManagePage from "@/pages/admin/CertificatesManagePage";
 import CertificateDesignPage from "@/pages/admin/CertificateDesignPage";
+import AdminSettingsPage from "@/pages/admin/SettingsPage";
 
 // Protected Route Component
 const ProtectedRoute = ({ children, requireAdmin = false }) => {
