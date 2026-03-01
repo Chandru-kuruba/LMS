@@ -213,6 +213,7 @@ export default function CoursePlayerPage() {
         
         // Try next lesson in current module
         if (currentModule.lessons && currentLessonIndex < currentModule.lessons.length - 1) {
+            setVideoUrl(null);
             setCurrentLesson(currentModule.lessons[currentLessonIndex + 1]);
             return;
         }
@@ -220,6 +221,7 @@ export default function CoursePlayerPage() {
         // Try first lesson in next module
         if (currentModuleIndex < modules.length - 1) {
             const nextModule = modules[currentModuleIndex + 1];
+            setVideoUrl(null);
             setCurrentModule(nextModule);
             setCurrentLesson(nextModule.lessons?.[0] || null);
             setIsQuizMode(false);
@@ -235,6 +237,7 @@ export default function CoursePlayerPage() {
         
         // Try previous lesson in current module
         if (currentLessonIndex > 0) {
+            setVideoUrl(null);
             setCurrentLesson(currentModule.lessons[currentLessonIndex - 1]);
             return;
         }
@@ -242,6 +245,7 @@ export default function CoursePlayerPage() {
         // Try last lesson in previous module
         if (currentModuleIndex > 0) {
             const prevModule = modules[currentModuleIndex - 1];
+            setVideoUrl(null);
             setCurrentModule(prevModule);
             setCurrentLesson(prevModule.lessons?.[prevModule.lessons.length - 1] || null);
             setIsQuizMode(false);
