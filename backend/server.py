@@ -1714,15 +1714,38 @@ async def get_lesson_video(
         "accessed_at": datetime.now(timezone.utc).isoformat()
     })
     
-    # Try R2 first (signed URL)
+    video_key = lesson["video_key"]
+    bucket_id = None
+    
+    # Check if video_key contains bucket_id (format: bucket_id:video_key)
+    if ":" in video_key:
+        bucket_id, video_key = video_key.split(":", 1)
+    
+    # Try to get signed URL from specific bucket
+    if bucket_id:
+        bucket_config = await db.r2_buckets.find_one({"id": bucket_id})
+        if bucket_config:
+            try:
+                bucket_client = get_r2_client_for_bucket(bucket_config)
+                if bucket_client:
+                    signed_url = bucket_client.generate_presigned_url(
+                        'get_object',
+                        Params={'Bucket': bucket_config['bucket_name'], 'Key': video_key},
+                        ExpiresIn=3600
+                    )
+                    return {"video_url": signed_url, "expires_in": 3600}
+            except Exception as e:
+                logger.error(f"Error generating signed URL from bucket {bucket_id}: {e}")
+    
+    # Fallback to default R2 client
     if r2_client:
-        signed_url = get_r2_signed_url(lesson["video_key"], expiry_seconds=3600)
+        signed_url = get_r2_signed_url(video_key, expiry_seconds=3600)
         if signed_url:
             return {"video_url": signed_url, "expires_in": 3600}
     
     # Fallback to emergent storage
     try:
-        video_data, content_type = get_object(lesson["video_key"])
+        video_data, content_type = get_object(video_key)
         return Response(content=video_data, media_type=content_type)
     except Exception as e:
         logger.error(f"Error fetching video: {e}")
