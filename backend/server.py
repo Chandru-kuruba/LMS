@@ -716,6 +716,27 @@ def upload_large_file_to_r2(file, object_key: str, content_type: str = "applicat
         logger.error(f"Failed to upload large file to R2: {e}")
         return False
 
+def get_r2_presigned_upload_url(object_key: str, content_type: str = "video/mp4", expiry_seconds: int = 3600) -> Optional[str]:
+    """Generate a presigned URL for direct upload to R2"""
+    if not r2_client:
+        logger.warning("R2 client not initialized")
+        return None
+    
+    try:
+        url = r2_client.generate_presigned_url(
+            'put_object',
+            Params={
+                'Bucket': R2_BUCKET_NAME,
+                'Key': object_key,
+                'ContentType': content_type
+            },
+            ExpiresIn=expiry_seconds
+        )
+        return url
+    except ClientError as e:
+        logger.error(f"Failed to generate presigned upload URL: {e}")
+        return None
+
 def get_r2_signed_url(object_key: str, expiry_seconds: int = 3600) -> Optional[str]:
     """Generate a signed URL for R2 object"""
     if not r2_client:
