@@ -600,6 +600,7 @@ export default function CoursePlayerPage() {
                                                 onClick={() => {
                                                     setCurrentModule(module);
                                                     setCurrentLesson(lesson);
+                                                    setVideoUrl(null);
                                                     setIsQuizMode(false);
                                                     setIsSidebarOpen(false);
                                                 }}
