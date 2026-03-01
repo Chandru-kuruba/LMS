@@ -81,10 +81,28 @@ export default function CourseEditorPage() {
     });
     
     const [uploadProgress, setUploadProgress] = useState(null);
+    const [availableBuckets, setAvailableBuckets] = useState([]);
+    const [selectedBucket, setSelectedBucket] = useState("");
 
     useEffect(() => {
         fetchCourse();
+        fetchBuckets();
     }, [courseId, accessToken]);
+
+    const fetchBuckets = async () => {
+        try {
+            const response = await axios.get(`${API}/admin/upload/buckets`, {
+                headers: { Authorization: `Bearer ${accessToken}` }
+            });
+            setAvailableBuckets(response.data.buckets || []);
+            // Set default bucket
+            const defaultBucket = response.data.buckets?.find(b => b.is_default);
+            if (defaultBucket) setSelectedBucket(defaultBucket.id);
+            else if (response.data.buckets?.length > 0) setSelectedBucket(response.data.buckets[0].id);
+        } catch (error) {
+            console.log("No buckets configured");
+        }
+    };
 
     const fetchCourse = async () => {
         try {
