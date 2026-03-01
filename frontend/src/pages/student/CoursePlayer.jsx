@@ -56,6 +56,8 @@ export default function CoursePlayerPage() {
     const [showCertDialog, setShowCertDialog] = useState(false);
     const [certName, setCertName] = useState("");
     const [isRequesting, setIsRequesting] = useState(false);
+    const [videoUrl, setVideoUrl] = useState(null);
+    const [isLoadingVideo, setIsLoadingVideo] = useState(false);
 
     useEffect(() => {
         const fetchCourse = async () => {
