@@ -145,6 +145,7 @@ function App() {
                         <Route path="/admin/certificates" element={<AdminCertificatesManagePage />} />
                         <Route path="/admin/certificate-design" element={<CertificateDesignPage />} />
                         <Route path="/admin/notifications" element={<AdminNotificationsPage />} />
+                        <Route path="/admin/settings" element={<AdminSettingsPage />} />
                     </Route>
 
                     {/* Fallback */}
