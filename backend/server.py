@@ -2812,6 +2812,65 @@ async def submit_assignment(
         await db.assignment_submissions.insert_one(submission)
         return {"message": "Assignment submitted", "submission_id": submission["id"]}
 
+
+# ======================== DIRECT R2 UPLOAD (FAST) ========================
+
+@api_router.post("/admin/upload/video/get-presigned-url")
+async def get_video_presigned_upload_url(
+    filename: str,
+    content_type: str = "video/mp4",
+    file_size: int = 0,
+    current_user: dict = Depends(get_admin_user)
+):
+    """
+    Get a presigned URL for direct upload to R2.
+    Browser uploads directly to Cloudflare - much faster!
+    """
+    if not r2_client:
+        raise HTTPException(status_code=500, detail="Storage not configured")
+    
+    ext = filename.split(".")[-1] if "." in filename else "mp4"
+    object_key = f"videos/{uuid.uuid4()}.{ext}"
+    
+    # Generate presigned URL for upload (valid for 1 hour)
+    upload_url = get_r2_presigned_upload_url(object_key, content_type, expiry_seconds=3600)
+    
+    if not upload_url:
+        raise HTTPException(status_code=500, detail="Failed to generate upload URL")
+    
+    return {
+        "upload_url": upload_url,
+        "video_key": object_key,
+        "expires_in": 3600,
+        "method": "PUT"
+    }
+
+
+@api_router.post("/admin/upload/video/confirm")
+async def confirm_video_upload(
+    video_key: str,
+    file_size: int = 0,
+    current_user: dict = Depends(get_admin_user)
+):
+    """Confirm that a direct upload completed successfully"""
+    if not r2_client:
+        raise HTTPException(status_code=500, detail="Storage not configured")
+    
+    # Verify the file exists in R2
+    try:
+        response = r2_client.head_object(Bucket=R2_BUCKET_NAME, Key=video_key)
+        actual_size = response.get('ContentLength', 0)
+        return {
+            "video_key": video_key,
+            "size": actual_size,
+            "storage": "r2",
+            "status": "confirmed"
+        }
+    except ClientError as e:
+        logger.error(f"Failed to confirm upload: {e}")
+        raise HTTPException(status_code=404, detail="Video not found in storage")
+
+
 @api_router.post("/admin/upload/video")
 async def admin_upload_video(
     file: UploadFile = File(...),
