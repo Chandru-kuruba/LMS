@@ -275,6 +275,54 @@ class LessonUpdate(BaseModel):
     order: Optional[int] = None
     is_preview: Optional[bool] = None
 
+
+# ======================== SETTINGS MODELS ========================
+
+class R2BucketCreate(BaseModel):
+    name: str  # Display name
+    account_id: str
+    access_key_id: str
+    secret_access_key: str
+    bucket_name: str
+    is_default: bool = False
+    description: Optional[str] = None
+
+class R2BucketUpdate(BaseModel):
+    name: Optional[str] = None
+    account_id: Optional[str] = None
+    access_key_id: Optional[str] = None
+    secret_access_key: Optional[str] = None
+    bucket_name: Optional[str] = None
+    is_default: Optional[bool] = None
+    description: Optional[str] = None
+
+class EmailSettingsUpdate(BaseModel):
+    smtp_host: Optional[str] = None
+    smtp_port: Optional[int] = None
+    smtp_user: Optional[str] = None
+    smtp_password: Optional[str] = None
+    smtp_from_email: Optional[str] = None
+    smtp_from_name: Optional[str] = None
+    smtp_use_ssl: Optional[bool] = True
+
+class GeneralSettingsUpdate(BaseModel):
+    site_name: Optional[str] = None
+    site_logo: Optional[str] = None
+    support_email: Optional[str] = None
+    support_phone: Optional[str] = None
+    currency: Optional[str] = None
+    currency_symbol: Optional[str] = None
+    referral_commission_percent: Optional[float] = None
+    min_withdrawal_amount: Optional[float] = None
+
+class PaymentSettingsUpdate(BaseModel):
+    payu_merchant_key: Optional[str] = None
+    payu_merchant_salt: Optional[str] = None
+    payu_mode: Optional[str] = None
+    razorpay_key_id: Optional[str] = None
+    razorpay_key_secret: Optional[str] = None
+
+
 # ======================== HELPER FUNCTIONS ========================
 
 def hash_password(password: str) -> str:
