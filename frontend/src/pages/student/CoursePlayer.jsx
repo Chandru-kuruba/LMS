@@ -100,6 +100,36 @@ export default function CoursePlayerPage() {
         if (accessToken) fetchCourse();
     }, [courseId, accessToken]);
 
+    // Fetch video URL when lesson changes
+    useEffect(() => {
+        const fetchVideoUrl = async () => {
+            if (!currentLesson || currentLesson.content_type !== "video" || !currentLesson.video_key) {
+                setVideoUrl(null);
+                return;
+            }
+            
+            setIsLoadingVideo(true);
+            try {
+                const response = await axios.get(
+                    `${API}/lessons/${currentLesson.id}/video`,
+                    { headers: { Authorization: `Bearer ${accessToken}` } }
+                );
+                if (response.data.video_url) {
+                    setVideoUrl(response.data.video_url);
+                }
+            } catch (error) {
+                console.error("Failed to fetch video URL:", error);
+                toast.error("Failed to load video");
+            } finally {
+                setIsLoadingVideo(false);
+            }
+        };
+        
+        if (accessToken && currentLesson) {
+            fetchVideoUrl();
+        }
+    }, [currentLesson?.id, accessToken]);
+
     const handleRequestCertificate = async () => {
         if (!certName.trim()) {
             toast.error("Please enter your name for the certificate");
