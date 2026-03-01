@@ -2838,6 +2838,149 @@ async def admin_upload_video(
     result = put_object(path, data, content_type)
     return {"video_key": result["path"], "size": result["size"], "storage": "emergent"}
 
+
+# Chunked upload endpoints for large files
+@api_router.post("/admin/upload/video/init")
+async def init_chunked_upload(
+    filename: str,
+    total_size: int,
+    total_chunks: int,
+    current_user: dict = Depends(get_admin_user)
+):
+    """Initialize a chunked upload session"""
+    ext = filename.split(".")[-1] if "." in filename else "mp4"
+    upload_id = str(uuid.uuid4())
+    object_key = f"videos/{uuid.uuid4()}.{ext}"
+    
+    # Store upload session in database
+    await db.upload_sessions.insert_one({
+        "upload_id": upload_id,
+        "object_key": object_key,
+        "filename": filename,
+        "total_size": total_size,
+        "total_chunks": total_chunks,
+        "uploaded_chunks": [],
+        "user_id": current_user["id"],
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "status": "in_progress"
+    })
+    
+    return {
+        "upload_id": upload_id,
+        "object_key": object_key,
+        "chunk_size": 50 * 1024 * 1024  # 50MB recommended chunk size
+    }
+
+
+@api_router.post("/admin/upload/video/chunk/{upload_id}/{chunk_index}")
+async def upload_chunk(
+    upload_id: str,
+    chunk_index: int,
+    file: UploadFile = File(...),
+    current_user: dict = Depends(get_admin_user)
+):
+    """Upload a single chunk"""
+    session = await db.upload_sessions.find_one({
+        "upload_id": upload_id,
+        "user_id": current_user["id"],
+        "status": "in_progress"
+    })
+    
+    if not session:
+        raise HTTPException(status_code=404, detail="Upload session not found")
+    
+    # Save chunk to temp storage
+    chunk_data = await file.read()
+    chunk_key = f"temp_chunks/{upload_id}/chunk_{chunk_index}"
+    
+    if r2_client:
+        success = upload_to_r2(chunk_data, chunk_key, "application/octet-stream")
+        if not success:
+            raise HTTPException(status_code=500, detail="Failed to save chunk")
+    
+    # Update session
+    await db.upload_sessions.update_one(
+        {"upload_id": upload_id},
+        {"$push": {"uploaded_chunks": chunk_index}}
+    )
+    
+    return {"chunk_index": chunk_index, "size": len(chunk_data), "status": "uploaded"}
+
+
+@api_router.post("/admin/upload/video/complete/{upload_id}")
+async def complete_chunked_upload(
+    upload_id: str,
+    current_user: dict = Depends(get_admin_user)
+):
+    """Complete the chunked upload by combining all chunks"""
+    session = await db.upload_sessions.find_one({
+        "upload_id": upload_id,
+        "user_id": current_user["id"],
+        "status": "in_progress"
+    })
+    
+    if not session:
+        raise HTTPException(status_code=404, detail="Upload session not found")
+    
+    # Verify all chunks are uploaded
+    if len(session["uploaded_chunks"]) != session["total_chunks"]:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Missing chunks. Expected {session['total_chunks']}, got {len(session['uploaded_chunks'])}"
+        )
+    
+    try:
+        import tempfile
+        
+        # Combine chunks
+        with tempfile.SpooledTemporaryFile(max_size=100*1024*1024) as combined:
+            for i in range(session["total_chunks"]):
+                chunk_key = f"temp_chunks/{upload_id}/chunk_{i}"
+                
+                if r2_client:
+                    try:
+                        response = r2_client.get_object(Bucket=R2_BUCKET_NAME, Key=chunk_key)
+                        chunk_data = response['Body'].read()
+                        combined.write(chunk_data)
+                        # Delete chunk after reading
+                        r2_client.delete_object(Bucket=R2_BUCKET_NAME, Key=chunk_key)
+                    except Exception as e:
+                        logger.error(f"Failed to read chunk {i}: {e}")
+                        raise HTTPException(status_code=500, detail=f"Failed to read chunk {i}")
+            
+            combined.seek(0)
+            
+            # Upload combined file to final location
+            ext = session["filename"].split(".")[-1] if "." in session["filename"] else "mp4"
+            content_type = f"video/{ext}" if ext in ["mp4", "webm", "mov", "avi"] else "video/mp4"
+            
+            success = upload_large_file_to_r2(combined, session["object_key"], content_type)
+            if not success:
+                raise HTTPException(status_code=500, detail="Failed to save final video")
+        
+        # Update session status
+        await db.upload_sessions.update_one(
+            {"upload_id": upload_id},
+            {"$set": {"status": "completed"}}
+        )
+        
+        return {
+            "video_key": session["object_key"],
+            "size": session["total_size"],
+            "storage": "r2",
+            "status": "completed"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to complete upload: {e}")
+        await db.upload_sessions.update_one(
+            {"upload_id": upload_id},
+            {"$set": {"status": "failed"}}
+        )
+        raise HTTPException(status_code=500, detail=f"Failed to complete upload: {str(e)}")
+
 @api_router.post("/admin/upload/image")
 async def admin_upload_image(
     file: UploadFile = File(...),
