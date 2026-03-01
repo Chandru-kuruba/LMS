@@ -273,6 +273,16 @@ export default function CourseEditorPage() {
         const file = e.target.files[0];
         if (!file) return;
 
+        // Check file size - warn if > 500MB
+        const fileSizeMB = file.size / (1024 * 1024);
+        if (fileSizeMB > 2000) {
+            toast.error("File too large. Maximum size is 2GB");
+            return;
+        }
+        if (fileSizeMB > 500) {
+            toast.info(`Uploading ${Math.round(fileSizeMB)}MB video. This may take a few minutes...`);
+        }
+
         const formData = new FormData();
         formData.append("file", file);
 
@@ -286,6 +296,7 @@ export default function CourseEditorPage() {
                         Authorization: `Bearer ${accessToken}`,
                         "Content-Type": "multipart/form-data"
                     },
+                    timeout: 600000, // 10 minutes timeout for large files
                     onUploadProgress: (progressEvent) => {
                         const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
                         setUploadProgress(percent);
@@ -293,9 +304,14 @@ export default function CourseEditorPage() {
                 }
             );
             setLessonForm({ ...lessonForm, video_key: response.data.video_key });
-            toast.success("Video uploaded!");
+            toast.success(`Video uploaded! (${Math.round(response.data.size / (1024 * 1024))}MB)`);
         } catch (error) {
-            toast.error("Failed to upload video");
+            console.error("Upload error:", error);
+            if (error.code === 'ECONNABORTED') {
+                toast.error("Upload timed out. Please try again with a smaller file or check your connection.");
+            } else {
+                toast.error(error.response?.data?.detail || "Failed to upload video");
+            }
         } finally {
             setUploadProgress(null);
         }
