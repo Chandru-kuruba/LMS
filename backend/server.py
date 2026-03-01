@@ -4220,6 +4220,286 @@ async def startup():
         await db.cms.insert_many(cms_pages)
         logger.info(f"Seeded {len(cms_pages)} CMS pages")
 
+
+# ======================== ADMIN SETTINGS ROUTES ========================
+
+@api_router.get("/admin/settings/r2-buckets")
+async def get_r2_buckets(current_user: dict = Depends(get_admin_user)):
+    """Get all R2 bucket configurations"""
+    buckets = await db.r2_buckets.find({}).to_list(100)
+    # Mask secret keys
+    for bucket in buckets:
+        bucket["_id"] = str(bucket["_id"])
+        if bucket.get("secret_access_key"):
+            bucket["secret_access_key"] = "***" + bucket["secret_access_key"][-4:]
+    return {"buckets": buckets}
+
+
+@api_router.post("/admin/settings/r2-buckets")
+async def create_r2_bucket(data: R2BucketCreate, current_user: dict = Depends(get_admin_user)):
+    """Add a new R2 bucket configuration"""
+    # If this is default, unset other defaults
+    if data.is_default:
+        await db.r2_buckets.update_many({}, {"$set": {"is_default": False}})
+    
+    bucket = {
+        "id": str(uuid.uuid4()),
+        "name": data.name,
+        "account_id": data.account_id,
+        "access_key_id": data.access_key_id,
+        "secret_access_key": data.secret_access_key,
+        "bucket_name": data.bucket_name,
+        "is_default": data.is_default,
+        "description": data.description,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    # Test connection
+    try:
+        test_client = get_r2_client_for_bucket(bucket)
+        if test_client:
+            test_client.list_objects_v2(Bucket=data.bucket_name, MaxKeys=1)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Failed to connect to bucket: {str(e)}")
+    
+    await db.r2_buckets.insert_one(bucket)
+    return {"message": "R2 bucket added", "bucket_id": bucket["id"]}
+
+
+@api_router.put("/admin/settings/r2-buckets/{bucket_id}")
+async def update_r2_bucket(bucket_id: str, data: R2BucketUpdate, current_user: dict = Depends(get_admin_user)):
+    """Update an R2 bucket configuration"""
+    bucket = await db.r2_buckets.find_one({"id": bucket_id})
+    if not bucket:
+        raise HTTPException(status_code=404, detail="Bucket not found")
+    
+    update_data = {k: v for k, v in data.dict().items() if v is not None}
+    
+    if update_data.get("is_default"):
+        await db.r2_buckets.update_many({"id": {"$ne": bucket_id}}, {"$set": {"is_default": False}})
+    
+    if update_data:
+        update_data["updated_at"] = datetime.now(timezone.utc).isoformat()
+        await db.r2_buckets.update_one({"id": bucket_id}, {"$set": update_data})
+    
+    return {"message": "R2 bucket updated"}
+
+
+@api_router.delete("/admin/settings/r2-buckets/{bucket_id}")
+async def delete_r2_bucket(bucket_id: str, current_user: dict = Depends(get_admin_user)):
+    """Delete an R2 bucket configuration"""
+    result = await db.r2_buckets.delete_one({"id": bucket_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Bucket not found")
+    return {"message": "R2 bucket deleted"}
+
+
+@api_router.post("/admin/settings/r2-buckets/{bucket_id}/test")
+async def test_r2_bucket(bucket_id: str, current_user: dict = Depends(get_admin_user)):
+    """Test connection to an R2 bucket"""
+    bucket = await db.r2_buckets.find_one({"id": bucket_id})
+    if not bucket:
+        raise HTTPException(status_code=404, detail="Bucket not found")
+    
+    try:
+        test_client = get_r2_client_for_bucket(bucket)
+        if test_client:
+            response = test_client.list_objects_v2(Bucket=bucket["bucket_name"], MaxKeys=5)
+            object_count = len(response.get("Contents", []))
+            return {"status": "connected", "objects_found": object_count}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Connection failed: {str(e)}")
+
+
+@api_router.get("/admin/settings/email")
+async def get_email_settings(current_user: dict = Depends(get_admin_user)):
+    """Get email/SMTP settings"""
+    settings = await db.settings.find_one({"type": "email"})
+    if settings:
+        settings["_id"] = str(settings["_id"])
+        if settings.get("smtp_password"):
+            settings["smtp_password"] = "***" + settings["smtp_password"][-4:] if len(settings.get("smtp_password", "")) > 4 else "****"
+    return {"settings": settings or {}}
+
+
+@api_router.put("/admin/settings/email")
+async def update_email_settings(data: EmailSettingsUpdate, current_user: dict = Depends(get_admin_user)):
+    """Update email/SMTP settings"""
+    update_data = {k: v for k, v in data.dict().items() if v is not None}
+    update_data["type"] = "email"
+    update_data["updated_at"] = datetime.now(timezone.utc).isoformat()
+    
+    await db.settings.update_one(
+        {"type": "email"},
+        {"$set": update_data},
+        upsert=True
+    )
+    return {"message": "Email settings updated"}
+
+
+@api_router.post("/admin/settings/email/test")
+async def test_email_settings(test_email: str, current_user: dict = Depends(get_admin_user)):
+    """Send a test email"""
+    settings = await db.settings.find_one({"type": "email"})
+    if not settings:
+        raise HTTPException(status_code=400, detail="Email settings not configured")
+    
+    try:
+        import smtplib
+        from email.mime.text import MIMEText
+        from email.mime.multipart import MIMEMultipart
+        
+        msg = MIMEMultipart()
+        msg['From'] = settings.get("smtp_from_email", settings.get("smtp_user"))
+        msg['To'] = test_email
+        msg['Subject'] = "LUMINA LMS - Test Email"
+        msg.attach(MIMEText("This is a test email from LUMINA LMS. Your email settings are working correctly!", 'plain'))
+        
+        if settings.get("smtp_use_ssl", True):
+            server = smtplib.SMTP_SSL(settings["smtp_host"], settings.get("smtp_port", 465))
+        else:
+            server = smtplib.SMTP(settings["smtp_host"], settings.get("smtp_port", 587))
+            server.starttls()
+        
+        server.login(settings["smtp_user"], settings["smtp_password"])
+        server.send_message(msg)
+        server.quit()
+        
+        return {"message": f"Test email sent to {test_email}"}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Failed to send email: {str(e)}")
+
+
+@api_router.get("/admin/settings/general")
+async def get_general_settings(current_user: dict = Depends(get_admin_user)):
+    """Get general site settings"""
+    settings = await db.settings.find_one({"type": "general"})
+    if settings:
+        settings["_id"] = str(settings["_id"])
+    return {"settings": settings or {
+        "site_name": "LUMINA LMS",
+        "currency": "INR",
+        "currency_symbol": "₹",
+        "referral_commission_percent": 10,
+        "min_withdrawal_amount": 10
+    }}
+
+
+@api_router.put("/admin/settings/general")
+async def update_general_settings(data: GeneralSettingsUpdate, current_user: dict = Depends(get_admin_user)):
+    """Update general site settings"""
+    update_data = {k: v for k, v in data.dict().items() if v is not None}
+    update_data["type"] = "general"
+    update_data["updated_at"] = datetime.now(timezone.utc).isoformat()
+    
+    await db.settings.update_one(
+        {"type": "general"},
+        {"$set": update_data},
+        upsert=True
+    )
+    return {"message": "General settings updated"}
+
+
+@api_router.get("/admin/settings/payment")
+async def get_payment_settings(current_user: dict = Depends(get_admin_user)):
+    """Get payment gateway settings"""
+    settings = await db.settings.find_one({"type": "payment"})
+    if settings:
+        settings["_id"] = str(settings["_id"])
+        # Mask sensitive keys
+        for key in ["payu_merchant_salt", "razorpay_key_secret"]:
+            if settings.get(key):
+                settings[key] = "***" + settings[key][-4:]
+    return {"settings": settings or {}}
+
+
+@api_router.put("/admin/settings/payment")
+async def update_payment_settings(data: PaymentSettingsUpdate, current_user: dict = Depends(get_admin_user)):
+    """Update payment gateway settings"""
+    update_data = {k: v for k, v in data.dict().items() if v is not None}
+    update_data["type"] = "payment"
+    update_data["updated_at"] = datetime.now(timezone.utc).isoformat()
+    
+    await db.settings.update_one(
+        {"type": "payment"},
+        {"$set": update_data},
+        upsert=True
+    )
+    return {"message": "Payment settings updated"}
+
+
+# ======================== MODIFIED VIDEO UPLOAD WITH BUCKET SELECTION ========================
+
+@api_router.get("/admin/upload/buckets")
+async def get_upload_buckets(current_user: dict = Depends(get_admin_user)):
+    """Get list of available buckets for upload selection"""
+    buckets = await db.r2_buckets.find({}).to_list(100)
+    return {"buckets": [{"id": b["id"], "name": b["name"], "bucket_name": b["bucket_name"], "is_default": b.get("is_default", False)} for b in buckets]}
+
+
+@api_router.post("/admin/upload/video/to-bucket/{bucket_id}")
+async def upload_video_to_bucket(
+    bucket_id: str,
+    file: UploadFile = File(...),
+    current_user: dict = Depends(get_admin_user)
+):
+    """Upload video to a specific R2 bucket"""
+    bucket = await db.r2_buckets.find_one({"id": bucket_id})
+    if not bucket:
+        raise HTTPException(status_code=404, detail="Bucket not found")
+    
+    ext = file.filename.split(".")[-1] if "." in file.filename else "mp4"
+    object_key = f"videos/{uuid.uuid4()}.{ext}"
+    content_type = file.content_type or "video/mp4"
+    
+    try:
+        bucket_client = get_r2_client_for_bucket(bucket)
+        if not bucket_client:
+            raise HTTPException(status_code=500, detail="Failed to connect to bucket")
+        
+        import tempfile
+        from boto3.s3.transfer import TransferConfig
+        
+        with tempfile.SpooledTemporaryFile(max_size=100*1024*1024) as tmp:
+            total_size = 0
+            chunk_size = 10 * 1024 * 1024
+            
+            while True:
+                chunk = await file.read(chunk_size)
+                if not chunk:
+                    break
+                tmp.write(chunk)
+                total_size += len(chunk)
+            
+            tmp.seek(0)
+            
+            config = TransferConfig(
+                multipart_threshold=50 * 1024 * 1024,
+                max_concurrency=10,
+                multipart_chunksize=50 * 1024 * 1024,
+                use_threads=True
+            )
+            
+            bucket_client.upload_fileobj(
+                tmp,
+                bucket["bucket_name"],
+                object_key,
+                Config=config,
+                ExtraArgs={'ContentType': content_type}
+            )
+            
+            return {
+                "video_key": object_key,
+                "size": total_size,
+                "storage": "r2",
+                "bucket_id": bucket_id,
+                "bucket_name": bucket["name"]
+            }
+    except Exception as e:
+        logger.error(f"Error uploading to bucket {bucket_id}: {e}")
+        raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
+
+
 # Include the router in the main app (MUST be after all route definitions)
 app.include_router(api_router)
 
