@@ -298,6 +298,11 @@ export default function CourseEditorPage() {
             return;
         }
 
+        if (!selectedBucket && availableBuckets.length > 0) {
+            toast.error("Please select a storage bucket first");
+            return;
+        }
+
         toast.info(`Uploading ${Math.round(fileSizeMB)}MB video...`);
         setUploadProgress(0);
 
@@ -305,25 +310,32 @@ export default function CourseEditorPage() {
         formData.append("file", file);
 
         try {
-            const response = await axios.post(
-                `${API}/admin/upload/video`,
-                formData,
-                {
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`,
-                        "Content-Type": "multipart/form-data"
-                    },
-                    timeout: 0, // No timeout
-                    maxContentLength: Infinity,
-                    maxBodyLength: Infinity,
-                    onUploadProgress: (progressEvent) => {
-                        const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-                        setUploadProgress(percent);
-                    }
+            // Use bucket-specific upload if bucket is selected
+            const uploadUrl = selectedBucket 
+                ? `${API}/admin/upload/video/to-bucket/${selectedBucket}`
+                : `${API}/admin/upload/video`;
+
+            const response = await axios.post(uploadUrl, formData, {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                    "Content-Type": "multipart/form-data"
+                },
+                timeout: 0,
+                maxContentLength: Infinity,
+                maxBodyLength: Infinity,
+                onUploadProgress: (progressEvent) => {
+                    const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                    setUploadProgress(percent);
                 }
-            );
-            setLessonForm({ ...lessonForm, video_key: response.data.video_key });
-            toast.success(`Video uploaded! (${Math.round(response.data.size / (1024 * 1024))}MB)`);
+            });
+            
+            // Store bucket info with video key
+            const videoKeyWithBucket = selectedBucket 
+                ? `${selectedBucket}:${response.data.video_key}`
+                : response.data.video_key;
+            
+            setLessonForm({ ...lessonForm, video_key: videoKeyWithBucket });
+            toast.success(`Video uploaded to ${response.data.bucket_name || 'storage'}! (${Math.round(response.data.size / (1024 * 1024))}MB)`);
         } catch (error) {
             console.error("Upload error:", error);
             toast.error(error.response?.data?.detail || "Failed to upload video. Check your connection and try again.");
