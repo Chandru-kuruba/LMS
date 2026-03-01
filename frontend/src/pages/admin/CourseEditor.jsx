@@ -268,25 +268,34 @@ export default function CourseEditorPage() {
         }
     };
 
-    // Video upload
+    // Video upload with chunked support for large files
     const handleVideoUpload = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
 
-        // Check file size - warn if > 500MB
         const fileSizeMB = file.size / (1024 * 1024);
+        
+        // Check file size limit
         if (fileSizeMB > 2000) {
             toast.error("File too large. Maximum size is 2GB");
             return;
         }
-        if (fileSizeMB > 500) {
-            toast.info(`Uploading ${Math.round(fileSizeMB)}MB video. This may take a few minutes...`);
-        }
 
+        setUploadProgress(0);
+
+        // Use chunked upload for files > 100MB
+        if (fileSizeMB > 100) {
+            await handleChunkedUpload(file, fileSizeMB);
+        } else {
+            await handleSimpleUpload(file);
+        }
+    };
+
+    // Simple upload for smaller files
+    const handleSimpleUpload = async (file) => {
         const formData = new FormData();
         formData.append("file", file);
 
-        setUploadProgress(0);
         try {
             const response = await axios.post(
                 `${API}/admin/upload/video`,
@@ -296,7 +305,7 @@ export default function CourseEditorPage() {
                         Authorization: `Bearer ${accessToken}`,
                         "Content-Type": "multipart/form-data"
                     },
-                    timeout: 600000, // 10 minutes timeout for large files
+                    timeout: 300000,
                     onUploadProgress: (progressEvent) => {
                         const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
                         setUploadProgress(percent);
@@ -307,11 +316,78 @@ export default function CourseEditorPage() {
             toast.success(`Video uploaded! (${Math.round(response.data.size / (1024 * 1024))}MB)`);
         } catch (error) {
             console.error("Upload error:", error);
-            if (error.code === 'ECONNABORTED') {
-                toast.error("Upload timed out. Please try again with a smaller file or check your connection.");
-            } else {
-                toast.error(error.response?.data?.detail || "Failed to upload video");
+            toast.error(error.response?.data?.detail || "Failed to upload video");
+        } finally {
+            setUploadProgress(null);
+        }
+    };
+
+    // Chunked upload for large files
+    const handleChunkedUpload = async (file, fileSizeMB) => {
+        const CHUNK_SIZE = 50 * 1024 * 1024; // 50MB chunks
+        const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+        
+        toast.info(`Uploading ${Math.round(fileSizeMB)}MB video in ${totalChunks} parts...`);
+
+        try {
+            // Initialize upload session
+            const initResponse = await axios.post(
+                `${API}/admin/upload/video/init`,
+                null,
+                {
+                    params: {
+                        filename: file.name,
+                        total_size: file.size,
+                        total_chunks: totalChunks
+                    },
+                    headers: { Authorization: `Bearer ${accessToken}` }
+                }
+            );
+
+            const { upload_id } = initResponse.data;
+
+            // Upload chunks
+            for (let i = 0; i < totalChunks; i++) {
+                const start = i * CHUNK_SIZE;
+                const end = Math.min(start + CHUNK_SIZE, file.size);
+                const chunk = file.slice(start, end);
+
+                const chunkFormData = new FormData();
+                chunkFormData.append("file", chunk, `chunk_${i}`);
+
+                await axios.post(
+                    `${API}/admin/upload/video/chunk/${upload_id}/${i}`,
+                    chunkFormData,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`,
+                            "Content-Type": "multipart/form-data"
+                        },
+                        timeout: 120000
+                    }
+                );
+
+                // Update progress
+                const percent = Math.round(((i + 1) / totalChunks) * 100);
+                setUploadProgress(percent);
             }
+
+            // Complete the upload
+            const completeResponse = await axios.post(
+                `${API}/admin/upload/video/complete/${upload_id}`,
+                null,
+                {
+                    headers: { Authorization: `Bearer ${accessToken}` },
+                    timeout: 300000
+                }
+            );
+
+            setLessonForm({ ...lessonForm, video_key: completeResponse.data.video_key });
+            toast.success(`Video uploaded! (${Math.round(fileSizeMB)}MB)`);
+
+        } catch (error) {
+            console.error("Chunked upload error:", error);
+            toast.error(error.response?.data?.detail || "Failed to upload video");
         } finally {
             setUploadProgress(null);
         }
