@@ -268,7 +268,7 @@ export default function CourseEditorPage() {
         }
     };
 
-    // Video upload with chunked support for large files
+    // Video upload - uses direct R2 upload for speed
     const handleVideoUpload = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -276,22 +276,79 @@ export default function CourseEditorPage() {
         const fileSizeMB = file.size / (1024 * 1024);
         
         // Check file size limit
-        if (fileSizeMB > 2000) {
-            toast.error("File too large. Maximum size is 2GB");
+        if (fileSizeMB > 5000) {
+            toast.error("File too large. Maximum size is 5GB");
             return;
         }
 
         setUploadProgress(0);
+        
+        // Use direct R2 upload for all files (faster!)
+        await handleDirectR2Upload(file, fileSizeMB);
+    };
 
-        // Use chunked upload for files > 100MB
-        if (fileSizeMB > 100) {
-            await handleChunkedUpload(file, fileSizeMB);
-        } else {
-            await handleSimpleUpload(file);
+    // Direct upload to R2 using presigned URL - FAST!
+    const handleDirectR2Upload = async (file, fileSizeMB) => {
+        try {
+            toast.info(`Uploading ${Math.round(fileSizeMB)}MB video directly to cloud storage...`);
+
+            // Step 1: Get presigned URL from backend
+            const presignedResponse = await axios.post(
+                `${API}/admin/upload/video/get-presigned-url`,
+                null,
+                {
+                    params: {
+                        filename: file.name,
+                        content_type: file.type || 'video/mp4',
+                        file_size: file.size
+                    },
+                    headers: { Authorization: `Bearer ${accessToken}` }
+                }
+            );
+
+            const { upload_url, video_key } = presignedResponse.data;
+
+            // Step 2: Upload directly to R2 (bypasses our server!)
+            await axios.put(upload_url, file, {
+                headers: {
+                    'Content-Type': file.type || 'video/mp4',
+                },
+                timeout: 0, // No timeout for large files
+                onUploadProgress: (progressEvent) => {
+                    const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                    setUploadProgress(percent);
+                }
+            });
+
+            // Step 3: Confirm upload with backend
+            const confirmResponse = await axios.post(
+                `${API}/admin/upload/video/confirm`,
+                null,
+                {
+                    params: { video_key, file_size: file.size },
+                    headers: { Authorization: `Bearer ${accessToken}` }
+                }
+            );
+
+            setLessonForm({ ...lessonForm, video_key: confirmResponse.data.video_key });
+            toast.success(`Video uploaded! (${Math.round(fileSizeMB)}MB)`);
+
+        } catch (error) {
+            console.error("Direct upload error:", error);
+            
+            // If direct upload fails, try fallback to server upload for small files
+            if (file.size < 100 * 1024 * 1024) {
+                toast.info("Trying alternative upload method...");
+                await handleSimpleUpload(file);
+            } else {
+                toast.error(error.response?.data?.detail || "Failed to upload video. Please try again.");
+            }
+        } finally {
+            setUploadProgress(null);
         }
     };
 
-    // Simple upload for smaller files
+    // Fallback: Simple upload through server for smaller files
     const handleSimpleUpload = async (file) => {
         const formData = new FormData();
         formData.append("file", file);
@@ -316,77 +373,6 @@ export default function CourseEditorPage() {
             toast.success(`Video uploaded! (${Math.round(response.data.size / (1024 * 1024))}MB)`);
         } catch (error) {
             console.error("Upload error:", error);
-            toast.error(error.response?.data?.detail || "Failed to upload video");
-        } finally {
-            setUploadProgress(null);
-        }
-    };
-
-    // Chunked upload for large files
-    const handleChunkedUpload = async (file, fileSizeMB) => {
-        const CHUNK_SIZE = 50 * 1024 * 1024; // 50MB chunks
-        const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
-        
-        toast.info(`Uploading ${Math.round(fileSizeMB)}MB video in ${totalChunks} parts...`);
-
-        try {
-            // Initialize upload session
-            const initResponse = await axios.post(
-                `${API}/admin/upload/video/init`,
-                null,
-                {
-                    params: {
-                        filename: file.name,
-                        total_size: file.size,
-                        total_chunks: totalChunks
-                    },
-                    headers: { Authorization: `Bearer ${accessToken}` }
-                }
-            );
-
-            const { upload_id } = initResponse.data;
-
-            // Upload chunks
-            for (let i = 0; i < totalChunks; i++) {
-                const start = i * CHUNK_SIZE;
-                const end = Math.min(start + CHUNK_SIZE, file.size);
-                const chunk = file.slice(start, end);
-
-                const chunkFormData = new FormData();
-                chunkFormData.append("file", chunk, `chunk_${i}`);
-
-                await axios.post(
-                    `${API}/admin/upload/video/chunk/${upload_id}/${i}`,
-                    chunkFormData,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${accessToken}`,
-                            "Content-Type": "multipart/form-data"
-                        },
-                        timeout: 120000
-                    }
-                );
-
-                // Update progress
-                const percent = Math.round(((i + 1) / totalChunks) * 100);
-                setUploadProgress(percent);
-            }
-
-            // Complete the upload
-            const completeResponse = await axios.post(
-                `${API}/admin/upload/video/complete/${upload_id}`,
-                null,
-                {
-                    headers: { Authorization: `Bearer ${accessToken}` },
-                    timeout: 300000
-                }
-            );
-
-            setLessonForm({ ...lessonForm, video_key: completeResponse.data.video_key });
-            toast.success(`Video uploaded! (${Math.round(fileSizeMB)}MB)`);
-
-        } catch (error) {
-            console.error("Chunked upload error:", error);
             toast.error(error.response?.data?.detail || "Failed to upload video");
         } finally {
             setUploadProgress(null);
