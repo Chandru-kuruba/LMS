@@ -377,14 +377,38 @@ export default function CoursePlayerPage() {
                             {/* Video Player */}
                             {currentLesson.content_type === "video" && (
                                 <div className="video-container mb-6 bg-slate-900 rounded-2xl overflow-hidden">
-                                    {currentLesson.video_key ? (
+                                    {isLoadingVideo ? (
+                                        <div className="aspect-video flex items-center justify-center bg-slate-900">
+                                            <div className="text-center">
+                                                <div className="animate-spin w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+                                                <p className="text-slate-400">Loading video...</p>
+                                            </div>
+                                        </div>
+                                    ) : videoUrl ? (
                                         <video
+                                            key={videoUrl}
                                             controls
                                             className="w-full h-full"
-                                            src={`${API}/lessons/${currentLesson.id}/video`}
+                                            src={videoUrl}
+                                            controlsList="nodownload"
                                         >
                                             Your browser does not support the video tag.
                                         </video>
+                                    ) : currentLesson.video_key ? (
+                                        <div className="aspect-video flex items-center justify-center bg-slate-900">
+                                            <div className="text-center">
+                                                <Video className="w-16 h-16 text-slate-600 mx-auto mb-4" />
+                                                <p className="text-slate-500">Failed to load video</p>
+                                                <Button 
+                                                    variant="outline" 
+                                                    size="sm" 
+                                                    className="mt-2"
+                                                    onClick={() => window.location.reload()}
+                                                >
+                                                    Retry
+                                                </Button>
+                                            </div>
+                                        </div>
                                     ) : (
                                         <div className="aspect-video flex items-center justify-center bg-slate-900">
                                             <div className="text-center">
