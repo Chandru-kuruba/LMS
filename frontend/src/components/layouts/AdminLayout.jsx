@@ -33,6 +33,7 @@ const adminLinks = [
     { icon: DollarSign, label: "Withdrawals", href: "/admin/withdrawals" },
     { icon: MessageSquare, label: "Tickets", href: "/admin/tickets" },
     { icon: FileText, label: "CMS", href: "/admin/cms" },
+    { icon: Settings, label: "Settings", href: "/admin/settings" },
 ];
 
 export const AdminLayout = () => {
