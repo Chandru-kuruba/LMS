@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { 
     Settings, Cloud, Mail, CreditCard, Globe, Plus, Trash2, Edit2, 
-    Check, X, TestTube, Eye, EyeOff, Database, RefreshCw, HardDrive, AlertTriangle
+    Check, X, TestTube, Eye, EyeOff, Database, RefreshCw, HardDrive, AlertTriangle,
+    Upload, Image
 } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
@@ -35,9 +36,12 @@ export default function SettingsPage() {
     // Email Settings State
     const [emailSettings, setEmailSettings] = useState({
         smtp_host: "", smtp_port: 465, smtp_user: "", smtp_password: "",
-        smtp_from_email: "", smtp_from_name: "", smtp_use_ssl: true
+        smtp_from_email: "", smtp_from_name: "", smtp_use_ssl: true,
+        email_logo_url: ""
     });
     const [testEmail, setTestEmail] = useState("");
+    const [uploadingLogo, setUploadingLogo] = useState(false);
+    const logoInputRef = useRef(null);
     
     // General Settings State
     const [generalSettings, setGeneralSettings] = useState({
@@ -186,6 +190,54 @@ export default function SettingsPage() {
             toast.success(`Test email sent to ${testEmail}`);
         } catch (error) {
             toast.error(error.response?.data?.detail || "Failed to send test email");
+        }
+    };
+
+    const handleUploadLogo = async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (!file.type.startsWith('image/')) {
+            toast.error("Please select an image file");
+            return;
+        }
+
+        if (file.size > 2 * 1024 * 1024) {
+            toast.error("Image must be less than 2MB");
+            return;
+        }
+
+        setUploadingLogo(true);
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const res = await axios.post(`${API}/admin/settings/email/logo`, formData, {
+                headers: { 
+                    Authorization: `Bearer ${accessToken}`,
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+
+            setEmailSettings(prev => ({ ...prev, email_logo_url: res.data.logo_url }));
+            toast.success("Logo uploaded successfully");
+        } catch (error) {
+            toast.error(error.response?.data?.detail || "Failed to upload logo");
+        } finally {
+            setUploadingLogo(false);
+            if (logoInputRef.current) logoInputRef.current.value = '';
+        }
+    };
+
+    const handleDeleteLogo = async () => {
+        try {
+            await axios.delete(`${API}/admin/settings/email/logo`, { 
+                headers: { Authorization: `Bearer ${accessToken}` } 
+            });
+            setEmailSettings(prev => ({ ...prev, email_logo_url: '' }));
+            toast.success("Logo removed");
+        } catch (error) {
+            toast.error("Failed to remove logo");
         }
     };
 
@@ -488,6 +540,75 @@ export default function SettingsPage() {
 
                 {/* Email/SMTP Tab */}
                 <TabsContent value="email" className="space-y-4">
+                    {/* Email Logo Section */}
+                    <div className="glass-card p-6 rounded-xl space-y-4">
+                        <h3 className="text-white font-semibold flex items-center gap-2">
+                            <Image className="w-5 h-5 text-purple-400" /> Email Logo
+                        </h3>
+                        <p className="text-slate-400 text-sm">
+                            This logo will appear in the header and footer of all system emails (OTP, password reset, certificates, etc.)
+                        </p>
+                        
+                        <div className="flex items-start gap-6">
+                            {/* Logo Preview */}
+                            <div className="flex-shrink-0">
+                                {emailSettings.email_logo_url ? (
+                                    <div className="relative group">
+                                        <img 
+                                            src={emailSettings.email_logo_url} 
+                                            alt="Email Logo" 
+                                            className="h-20 max-w-[200px] object-contain rounded-lg border border-slate-700 bg-slate-800 p-2"
+                                        />
+                                        <button
+                                            onClick={handleDeleteLogo}
+                                            className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                        >
+                                            <X className="w-4 h-4 text-white" />
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div className="h-20 w-40 rounded-lg border-2 border-dashed border-slate-700 flex items-center justify-center bg-slate-800/50">
+                                        <div className="text-center">
+                                            <Image className="w-8 h-8 text-slate-600 mx-auto" />
+                                            <p className="text-slate-500 text-xs mt-1">No logo</p>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Upload Controls */}
+                            <div className="flex-1 space-y-3">
+                                <input
+                                    ref={logoInputRef}
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleUploadLogo}
+                                    className="hidden"
+                                    id="email-logo-upload"
+                                />
+                                <Button 
+                                    variant="outline" 
+                                    onClick={() => logoInputRef.current?.click()}
+                                    disabled={uploadingLogo}
+                                >
+                                    {uploadingLogo ? (
+                                        <><RefreshCw className="w-4 h-4 mr-2 animate-spin" /> Uploading...</>
+                                    ) : (
+                                        <><Upload className="w-4 h-4 mr-2" /> Upload Logo</>
+                                    )}
+                                </Button>
+                                <p className="text-slate-500 text-xs">
+                                    Recommended: PNG or JPG, max 2MB, transparent background preferred
+                                </p>
+                                <p className="text-slate-600 text-xs">
+                                    The logo appears in email headers and footers. For Gmail inbox icon (BIMI), 
+                                    you'll need to set up BIMI records for your domain.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* SMTP Configuration */}
                     <div className="glass-card p-6 rounded-xl space-y-4">
                         <h3 className="text-white font-semibold flex items-center gap-2">
                             <Mail className="w-5 h-5 text-purple-400" /> SMTP Email Configuration

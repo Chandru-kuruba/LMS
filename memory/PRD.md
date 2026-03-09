@@ -1,61 +1,59 @@
 # LMS (Learning Management System) - PRD
 
 ## Original Problem Statement
-Clone and run the LMS project from https://github.com/Chandru-kuruba/LMS as-is
+1. Clone and run LMS from GitHub
+2. Add email logo upload from settings page
+3. Add live messages using WebSockets with persistence
 
 ## Architecture
-- **Backend**: FastAPI (Python) on port 8001
+- **Backend**: FastAPI (Python) on port 8001 with Socket.IO
 - **Frontend**: React with Tailwind CSS on port 3000
 - **Database**: MongoDB (local)
-- **Storage**: Cloudflare R2 (optional)
-- **Payments**: PayU integration
+- **WebSocket**: Socket.IO for real-time messaging
 
 ## Tech Stack
-- FastAPI + Motor (async MongoDB)
-- React 19 + Tailwind CSS + Radix UI
+- FastAPI + Motor (async MongoDB) + python-socketio
+- React 19 + Tailwind CSS + socket.io-client
 - JWT Authentication with OTP verification
-- SMTP Email integration (configurable via admin)
 
-## User Personas
-1. **Students** - Browse courses, enroll, learn, earn certificates
-2. **Admin** - Manage courses, users, certificates, settings
-3. **Instructors** - Create and manage course content
+## What's Been Implemented
 
-## Core Requirements (Static)
-- User registration with email OTP verification
-- Course catalog with categories and search
-- Course enrollment and progress tracking
-- Quiz and assessment system
-- Certificate generation
-- Admin dashboard
-- Email notifications
-- Payment processing
+### Jan 2026 - Initial Setup
+- ✅ Cloned LMS from GitHub
+- ✅ Configured environment (.env files)
+- ✅ Fixed build issues
 
-## What's Been Implemented (Jan 2026)
-- ✅ Full LMS cloned from GitHub repository
-- ✅ Backend API with 50+ endpoints
-- ✅ Frontend with student and admin interfaces
-- ✅ Authentication with JWT + OTP
-- ✅ Course management system
-- ✅ Certificate generation with PDF
-- ✅ Email configuration via admin panel
-- ✅ Referral system
-- ✅ Cart and wishlist functionality
+### Mar 2026 - New Features
+- ✅ **Email Logo Upload**
+  - POST /api/admin/settings/email/logo - Upload logo
+  - DELETE /api/admin/settings/email/logo - Remove logo
+  - Logo stored in R2 or base64 data URL
+  - Integrated into all email templates (OTP, password reset, certificates, payments)
+
+- ✅ **WebSocket Live Messaging**
+  - Socket.IO server integrated with FastAPI
+  - Authentication via JWT token
+  - Real-time message delivery
+  - Typing indicators
+  - Connection status (Live/Offline)
+  - Messages persisted to MongoDB
 
 ## Prioritized Backlog
+
 ### P0 (Critical)
-- None - Core system functional
+- None - Core features functional
 
 ### P1 (Important)
-- Video streaming optimization
-- Mobile responsive improvements
+- Group chat for course discussions
+- Read receipts for messages
+- Push notifications for new messages
 
 ### P2 (Nice to have)
-- Social login integration
-- Advanced analytics dashboard
-- Bulk course import
+- BIMI setup for Gmail inbox branding
+- Voice/video messaging
+- Message search functionality
 
 ## Next Tasks
-1. Test full enrollment flow end-to-end
-2. Configure production payment keys
-3. Add SSL certificate for custom domain
+1. Test email logo with test email
+2. Create multiple users to test WebSocket messaging
+3. Configure BIMI DNS records for Gmail inbox icon

@@ -67,8 +67,8 @@ R2_SECRET_ACCESS_KEY = os.environ.get('R2_SECRET_ACCESS_KEY', '')
 R2_BUCKET_NAME = os.environ.get('R2_BUCKET_NAME', 'course')
 R2_ENDPOINT = f"https://{R2_ACCOUNT_ID}.r2.cloudflarestorage.com" if R2_ACCOUNT_ID else ""
 
-# Create the main app
-app = FastAPI(title="LUMINA LMS API", version="1.0.0")
+# Create the main FastAPI app
+fastapi_app = FastAPI(title="LUMINA LMS API", version="1.0.0")
 
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
@@ -82,6 +82,78 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
+
+# ======================== SOCKET.IO SETUP ========================
+import socketio
+
+# Create Socket.IO server
+sio = socketio.AsyncServer(
+    async_mode='asgi',
+    cors_allowed_origins='*',
+    logger=False,
+    engineio_logger=False
+)
+
+# Connected users mapping: user_id -> set of sid
+connected_users: Dict[str, set] = {}
+
+@sio.event
+async def connect(sid, environ, auth):
+    logger.info(f"WebSocket client connected: {sid}")
+
+@sio.event
+async def disconnect(sid):
+    # Remove user from connected_users
+    for user_id, sids in list(connected_users.items()):
+        if sid in sids:
+            sids.discard(sid)
+            if not sids:
+                del connected_users[user_id]
+            logger.info(f"User {user_id} disconnected: {sid}")
+            break
+
+@sio.event
+async def authenticate(sid, data):
+    """Authenticate WebSocket connection with JWT token"""
+    try:
+        token = data.get('token')
+        if not token:
+            await sio.emit('auth_error', {'error': 'No token provided'}, to=sid)
+            return
+        
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        user_id = payload.get('sub')
+        
+        if user_id:
+            # Add to connected users
+            if user_id not in connected_users:
+                connected_users[user_id] = set()
+            connected_users[user_id].add(sid)
+            
+            # Join personal room
+            await sio.enter_room(sid, f"user_{user_id}")
+            
+            await sio.emit('authenticated', {'user_id': user_id}, to=sid)
+            logger.info(f"User {user_id} authenticated on WebSocket: {sid}")
+    except Exception as e:
+        logger.error(f"WebSocket auth error: {e}")
+        await sio.emit('auth_error', {'error': str(e)}, to=sid)
+
+@sio.event
+async def typing(sid, data):
+    """Handle typing indicator"""
+    recipient_id = data.get('recipient_id')
+    sender_id = data.get('sender_id')
+    if recipient_id:
+        await sio.emit('user_typing', {'sender_id': sender_id}, room=f"user_{recipient_id}")
+
+@sio.event
+async def stop_typing(sid, data):
+    """Handle stop typing indicator"""
+    recipient_id = data.get('recipient_id')
+    sender_id = data.get('sender_id')
+    if recipient_id:
+        await sio.emit('user_stop_typing', {'sender_id': sender_id}, room=f"user_{recipient_id}")
 
 # Initialize R2 Client (after logger is defined)
 r2_client = None
@@ -309,6 +381,7 @@ class EmailSettingsUpdate(BaseModel):
     smtp_from_email: Optional[str] = None
     smtp_from_name: Optional[str] = None
     smtp_use_ssl: Optional[bool] = True
+    email_logo_url: Optional[str] = None  # Logo URL for email header
 
 class GeneralSettingsUpdate(BaseModel):
     site_name: Optional[str] = None
@@ -468,307 +541,211 @@ def send_email(to_email: str, subject: str, html_content: str) -> bool:
         # No event loop, create new one
         return asyncio.run(send_email_async(to_email, subject, html_content))
 
-def send_otp_email(to_email: str, otp: str, user_name: str = "User"):
-    """Send OTP verification email"""
-    html_content = f"""
+def get_email_logo_sync():
+    """Get email logo URL from settings (sync version for email functions)"""
+    import asyncio
+    try:
+        loop = asyncio.get_event_loop()
+        if loop.is_running():
+            # Return default if already in async context
+            return None
+        settings = loop.run_until_complete(db.settings.find_one({"type": "email"}))
+        return settings.get("email_logo_url") if settings else None
+    except:
+        return None
+
+def get_email_template(content: str, site_name: str = "LUMINA", logo_url: str = None):
+    """Generate standardized email template with logo support"""
+    logo_html = ""
+    if logo_url:
+        logo_html = f'<img src="{logo_url}" alt="{site_name}" style="max-height: 60px; max-width: 200px; object-fit: contain;" />'
+    else:
+        logo_html = f'<span class="logo-text">{site_name}</span>'
+    
+    return f"""
     <!DOCTYPE html>
     <html>
     <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <style>
-            body {{ font-family: 'Inter', Arial, sans-serif; background-color: #0F172A; color: #F8FAFC; margin: 0; padding: 40px 20px; }}
-            .container {{ max-width: 500px; margin: 0 auto; background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%); border-radius: 16px; padding: 40px; border: 1px solid rgba(139, 92, 246, 0.3); }}
-            .logo {{ text-align: center; margin-bottom: 30px; }}
-            .logo-text {{ font-size: 28px; font-weight: bold; background: linear-gradient(90deg, #00F5FF, #8B5CF6, #FF2E9F); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }}
-            h1 {{ color: #F8FAFC; text-align: center; margin-bottom: 20px; }}
+            body {{ font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #0F172A; color: #F8FAFC; margin: 0; padding: 40px 20px; }}
+            .container {{ max-width: 600px; margin: 0 auto; background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%); border-radius: 16px; padding: 40px; border: 1px solid rgba(139, 92, 246, 0.3); }}
+            .header {{ text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid rgba(139, 92, 246, 0.2); }}
+            .logo-text {{ font-size: 28px; font-weight: bold; background: linear-gradient(90deg, #00F5FF, #8B5CF6, #FF2E9F); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }}
+            .content {{ padding: 20px 0; }}
+            h1 {{ color: #F8FAFC; text-align: center; margin-bottom: 20px; font-size: 24px; }}
+            p {{ color: #94A3B8; line-height: 1.7; margin: 12px 0; }}
+            .btn {{ display: inline-block; background: linear-gradient(90deg, #8B5CF6, #7C3AED); color: white !important; padding: 14px 32px; text-decoration: none; border-radius: 50px; font-weight: 600; margin: 20px 0; }}
             .otp-box {{ background: rgba(139, 92, 246, 0.2); border: 1px solid #8B5CF6; border-radius: 12px; padding: 24px; text-align: center; margin: 30px 0; }}
             .otp-code {{ font-size: 36px; font-weight: bold; letter-spacing: 8px; color: #8B5CF6; font-family: 'JetBrains Mono', monospace; }}
-            p {{ color: #94A3B8; line-height: 1.6; }}
-            .footer {{ text-align: center; margin-top: 30px; color: #64748B; font-size: 12px; }}
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <div class="logo">
-                <span class="logo-text">LUMINA</span>
-            </div>
-            <h1>Verify Your Email</h1>
-            <p>Hi {user_name},</p>
-            <p>Thank you for registering with LUMINA! Use the following OTP to verify your email address:</p>
-            <div class="otp-box">
-                <span class="otp-code">{otp}</span>
-            </div>
-            <p>This OTP is valid for 10 minutes. If you didn't request this, please ignore this email.</p>
-            <div class="footer">
-                <p>&copy; 2024 LUMINA. All rights reserved.</p>
-            </div>
-        </div>
-    </body>
-    </html>
-    """
-    return send_email(to_email, "Verify Your LUMINA Account - OTP", html_content)
-
-def send_password_reset_email(to_email: str, reset_token: str, user_name: str = "User"):
-    """Send password reset email"""
-    reset_link = f"{os.environ.get('FRONTEND_URL', 'https://skill-exchange-110.preview.emergentagent.com')}/reset-password?token={reset_token}"
-    html_content = f"""
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <style>
-            body {{ font-family: 'Inter', Arial, sans-serif; background-color: #0F172A; color: #F8FAFC; margin: 0; padding: 40px 20px; }}
-            .container {{ max-width: 500px; margin: 0 auto; background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%); border-radius: 16px; padding: 40px; border: 1px solid rgba(139, 92, 246, 0.3); }}
-            .logo {{ text-align: center; margin-bottom: 30px; }}
-            .logo-text {{ font-size: 28px; font-weight: bold; background: linear-gradient(90deg, #00F5FF, #8B5CF6, #FF2E9F); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }}
-            h1 {{ color: #F8FAFC; text-align: center; margin-bottom: 20px; }}
-            .btn {{ display: inline-block; background: linear-gradient(90deg, #8B5CF6, #7C3AED); color: white; padding: 14px 32px; text-decoration: none; border-radius: 50px; font-weight: 600; margin: 20px 0; }}
-            p {{ color: #94A3B8; line-height: 1.6; }}
-            .footer {{ text-align: center; margin-top: 30px; color: #64748B; font-size: 12px; }}
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <div class="logo">
-                <span class="logo-text">LUMINA</span>
-            </div>
-            <h1>Reset Your Password</h1>
-            <p>Hi {user_name},</p>
-            <p>We received a request to reset your password. Click the button below to create a new password:</p>
-            <div style="text-align: center;">
-                <a href="{reset_link}" class="btn">Reset Password</a>
-            </div>
-            <p>This link is valid for 1 hour. If you didn't request this, please ignore this email.</p>
-            <div class="footer">
-                <p>&copy; 2024 LUMINA. All rights reserved.</p>
-            </div>
-        </div>
-    </body>
-    </html>
-    """
-    return send_email(to_email, "Reset Your LUMINA Password", html_content)
-
-def send_payment_confirmation_email(to_email: str, user_name: str, order_total: float, courses: list):
-    """Send payment confirmation email"""
-    course_list = "".join([f"<li>{c['title']}</li>" for c in courses])
-    html_content = f"""
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <style>
-            body {{ font-family: 'Inter', Arial, sans-serif; background-color: #0F172A; color: #F8FAFC; margin: 0; padding: 40px 20px; }}
-            .container {{ max-width: 500px; margin: 0 auto; background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%); border-radius: 16px; padding: 40px; border: 1px solid rgba(16, 185, 129, 0.3); }}
-            .logo {{ text-align: center; margin-bottom: 30px; }}
-            .logo-text {{ font-size: 28px; font-weight: bold; background: linear-gradient(90deg, #00F5FF, #8B5CF6, #FF2E9F); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }}
-            h1 {{ color: #10B981; text-align: center; margin-bottom: 20px; }}
-            .amount {{ font-size: 32px; font-weight: bold; color: #10B981; text-align: center; }}
-            ul {{ color: #94A3B8; }}
-            li {{ padding: 8px 0; }}
-            p {{ color: #94A3B8; line-height: 1.6; }}
-            .footer {{ text-align: center; margin-top: 30px; color: #64748B; font-size: 12px; }}
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <div class="logo">
-                <span class="logo-text">LUMINA</span>
-            </div>
-            <h1>Payment Successful!</h1>
-            <p>Hi {user_name},</p>
-            <p>Thank you for your purchase! Your payment has been confirmed.</p>
-            <p class="amount">₹{order_total:.2f}</p>
-            <p><strong>Courses Purchased:</strong></p>
-            <ul>{course_list}</ul>
-            <p>You can now access your courses from your dashboard. Happy learning!</p>
-            <div class="footer">
-                <p>&copy; 2024 LUMINA. All rights reserved.</p>
-            </div>
-        </div>
-    </body>
-    </html>
-    """
-    return send_email(to_email, "Payment Confirmed - LUMINA", html_content)
-
-def send_order_success_email(to_email: str, user_name: str, order: dict, courses: list):
-    """Send order success email with invoice details"""
-    course_rows = ""
-    for course in courses:
-        price = course.get("discount_price") or course.get("price", 0)
-        course_rows += f"""
-        <tr>
-            <td style="padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.1);">{course['title']}</td>
-            <td style="padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: right;">₹{price:.2f}</td>
-        </tr>
-        """
-    
-    html_content = f"""
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <style>
-            body {{ font-family: 'Inter', Arial, sans-serif; background-color: #0F172A; color: #F8FAFC; margin: 0; padding: 40px 20px; }}
-            .container {{ max-width: 600px; margin: 0 auto; background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%); border-radius: 16px; padding: 40px; border: 1px solid rgba(16, 185, 129, 0.3); }}
-            .logo {{ text-align: center; margin-bottom: 30px; }}
-            .logo-text {{ font-size: 28px; font-weight: bold; background: linear-gradient(90deg, #00F5FF, #8B5CF6, #FF2E9F); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }}
-            h1 {{ color: #10B981; text-align: center; margin-bottom: 10px; }}
-            .invoice-box {{ background: rgba(30, 41, 59, 0.8); border-radius: 12px; padding: 20px; margin: 20px 0; }}
-            .invoice-header {{ display: flex; justify-content: space-between; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); }}
-            table {{ width: 100%; border-collapse: collapse; }}
-            th {{ text-align: left; padding: 12px; color: #94A3B8; font-weight: 500; }}
-            .total-row {{ background: rgba(16, 185, 129, 0.1); }}
-            .total-row td {{ font-weight: bold; color: #10B981; }}
-            p {{ color: #94A3B8; line-height: 1.6; }}
-            .btn {{ display: inline-block; background: linear-gradient(90deg, #8B5CF6, #7C3AED); color: white; padding: 14px 32px; text-decoration: none; border-radius: 50px; font-weight: 600; }}
-            .footer {{ text-align: center; margin-top: 30px; color: #64748B; font-size: 12px; }}
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <div class="logo">
-                <span class="logo-text">LUMINA</span>
-            </div>
-            <h1>Order Confirmed!</h1>
-            <p style="text-align: center; margin-bottom: 30px;">Thank you for your purchase, {user_name}!</p>
-            
-            <div class="invoice-box">
-                <div style="margin-bottom: 20px;">
-                    <p style="margin: 0; color: #64748B; font-size: 14px;">Invoice Number</p>
-                    <p style="margin: 5px 0; color: #F8FAFC; font-size: 18px; font-weight: bold;">{order['txn_id']}</p>
-                </div>
-                <div style="margin-bottom: 20px;">
-                    <p style="margin: 0; color: #64748B; font-size: 14px;">Order Date</p>
-                    <p style="margin: 5px 0; color: #F8FAFC;">{datetime.fromisoformat(order['created_at']).strftime('%B %d, %Y')}</p>
-                </div>
-                
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Course</th>
-                            <th style="text-align: right;">Price</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {course_rows}
-                        <tr class="total-row">
-                            <td style="padding: 12px;">Total Paid</td>
-                            <td style="padding: 12px; text-align: right; font-size: 20px;">₹{order['total']:.2f}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            
-            <p style="text-align: center;">
-                <a href="https://skill-exchange-110.preview.emergentagent.com/my-courses" class="btn">Start Learning</a>
-            </p>
-            
-            <p style="text-align: center; margin-top: 30px;">
-                Need help? Contact us at <a href="mailto:support@lumina.com" style="color: #8B5CF6;">support@lumina.com</a>
-            </p>
-            
-            <div class="footer">
-                <p>&copy; 2024 LUMINA. All rights reserved.</p>
-            </div>
-        </div>
-    </body>
-    </html>
-    """
-    return send_email(to_email, f"Order Confirmed - Invoice #{order['txn_id']}", html_content)
-
-def send_withdrawal_notification_email(to_email: str, user_name: str, amount: float, status: str):
-    """Send withdrawal status notification"""
-    status_color = "#10B981" if status == "approved" else "#EF4444"
-    status_text = "approved and processed" if status == "approved" else "rejected"
-    
-    html_content = f"""
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <style>
-            body {{ font-family: 'Inter', Arial, sans-serif; background-color: #0F172A; color: #F8FAFC; margin: 0; padding: 40px 20px; }}
-            .container {{ max-width: 500px; margin: 0 auto; background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%); border-radius: 16px; padding: 40px; border: 1px solid rgba(139, 92, 246, 0.3); }}
-            .logo {{ text-align: center; margin-bottom: 30px; }}
-            .logo-text {{ font-size: 28px; font-weight: bold; background: linear-gradient(90deg, #00F5FF, #8B5CF6, #FF2E9F); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }}
-            h1 {{ color: {status_color}; text-align: center; }}
-            .amount {{ font-size: 32px; font-weight: bold; color: {status_color}; text-align: center; }}
-            p {{ color: #94A3B8; line-height: 1.6; }}
-            .footer {{ text-align: center; margin-top: 30px; color: #64748B; font-size: 12px; }}
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <div class="logo">
-                <span class="logo-text">LUMINA</span>
-            </div>
-            <h1>Withdrawal {status.title()}</h1>
-            <p>Hi {user_name},</p>
-            <p>Your withdrawal request has been {status_text}.</p>
-            <p class="amount">₹{amount:.2f}</p>
-            {"<p>The amount will be transferred to your bank account within 3-5 business days.</p>" if status == "approved" else "<p>Please contact support if you have any questions.</p>"}
-            <div class="footer">
-                <p>&copy; 2024 LUMINA. All rights reserved.</p>
-            </div>
-        </div>
-    </body>
-    </html>
-    """
-    return send_email(to_email, f"Withdrawal {status.title()} - LUMINA", html_content)
-
-def send_certificate_email(to_email: str, user_name: str, course_title: str, certificate_id: str, verification_url: str):
-    """Send certificate generation notification email"""
-    html_content = f"""
-    <html>
-    <head>
-        <style>
-            body {{ font-family: 'Segoe UI', Arial, sans-serif; background: #0F172A; margin: 0; padding: 20px; color: #F8FAFC; }}
-            .container {{ max-width: 600px; margin: 0 auto; background: linear-gradient(145deg, #1E293B, #0F172A); border-radius: 20px; padding: 40px; border: 1px solid #8B5CF6; }}
-            .header {{ text-align: center; margin-bottom: 30px; }}
-            .logo {{ font-size: 32px; font-weight: bold; background: linear-gradient(90deg, #00F5FF, #8B5CF6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }}
-            .trophy {{ font-size: 60px; margin: 20px 0; }}
-            h1 {{ color: #F8FAFC; font-size: 28px; margin: 0; }}
-            .subtitle {{ color: #94A3B8; font-size: 16px; }}
-            .content {{ margin: 30px 0; }}
-            .course-box {{ background: #1E293B; border-radius: 12px; padding: 20px; border-left: 4px solid #8B5CF6; margin: 20px 0; }}
-            .course-title {{ color: #8B5CF6; font-size: 18px; font-weight: bold; margin-bottom: 5px; }}
-            .cert-id {{ font-family: monospace; background: #374151; padding: 8px 16px; border-radius: 8px; display: inline-block; margin: 10px 0; color: #00F5FF; }}
-            .btn {{ display: inline-block; padding: 14px 32px; background: linear-gradient(135deg, #8B5CF6, #6366F1); color: white; text-decoration: none; border-radius: 12px; font-weight: bold; margin: 10px 5px; }}
-            .btn-outline {{ background: transparent; border: 2px solid #8B5CF6; color: #8B5CF6; }}
-            .footer {{ text-align: center; margin-top: 30px; color: #64748B; font-size: 14px; border-top: 1px solid #374151; padding-top: 20px; }}
+            .footer {{ text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(139, 92, 246, 0.2); color: #64748B; font-size: 12px; }}
+            .footer-logo {{ margin-bottom: 15px; }}
+            .social-links {{ margin: 15px 0; }}
+            .social-links a {{ color: #8B5CF6; text-decoration: none; margin: 0 10px; }}
         </style>
     </head>
     <body>
         <div class="container">
             <div class="header">
-                <div class="logo">CHAND WEB TECHNOLOGY</div>
-                <div class="trophy">🏆</div>
-                <h1>Congratulations, {user_name}!</h1>
-                <p class="subtitle">You've earned a certificate!</p>
+                {logo_html}
             </div>
-            
             <div class="content">
-                <p>We're thrilled to inform you that your certificate has been successfully generated for completing:</p>
-                
-                <div class="course-box">
-                    <div class="course-title">{course_title}</div>
-                    <p style="color: #94A3B8; margin: 0;">Certificate of Completion</p>
-                </div>
-                
-                <p><strong>Certificate ID:</strong></p>
-                <div class="cert-id">{certificate_id}</div>
-                
-                <div style="text-align: center; margin-top: 30px;">
-                    <a href="{verification_url}" class="btn">View Certificate</a>
-                    <a href="{verification_url.replace('/verify/', '/certificates')}" class="btn btn-outline">Download</a>
-                </div>
+                {content}
             </div>
-            
             <div class="footer">
-                <p>This certificate is verifiable at any time using the Certificate ID above.</p>
-                <p>ISO 9001:2015 Certified | MSME Registered</p>
-                <p>&copy; 2026 Chand Web Technology. All rights reserved.</p>
+                <div class="footer-logo">
+                    {logo_html}
+                </div>
+                <p>&copy; 2024 {site_name}. All rights reserved.</p>
+                <p style="color: #475569; font-size: 11px;">This email was sent by {site_name}. If you didn't request this, please ignore it.</p>
             </div>
         </div>
     </body>
     </html>
     """
-    return send_email(to_email, f"🎉 Certificate Earned - {course_title}", html_content)
+
+def send_otp_email(to_email: str, otp: str, user_name: str = "User"):
+    """Send OTP verification email"""
+    logo_url = get_email_logo_sync()
+    content = f"""
+        <h1>Verify Your Email</h1>
+        <p>Hi {user_name},</p>
+        <p>Thank you for registering! Use the following OTP to verify your email address:</p>
+        <div class="otp-box">
+            <span class="otp-code">{otp}</span>
+        </div>
+        <p>This OTP is valid for 10 minutes. If you didn't request this, please ignore this email.</p>
+    """
+    html_content = get_email_template(content, "LUMINA", logo_url)
+    return send_email(to_email, "Verify Your Account - OTP", html_content)
+
+def send_password_reset_email(to_email: str, reset_token: str, user_name: str = "User"):
+    """Send password reset email"""
+    logo_url = get_email_logo_sync()
+    reset_link = f"{os.environ.get('FRONTEND_URL', 'https://skill-exchange-110.preview.emergentagent.com')}/reset-password?token={reset_token}"
+    content = f"""
+        <h1>Reset Your Password</h1>
+        <p>Hi {user_name},</p>
+        <p>We received a request to reset your password. Click the button below to create a new password:</p>
+        <div style="text-align: center;">
+            <a href="{reset_link}" class="btn">Reset Password</a>
+        </div>
+        <p>This link is valid for 1 hour. If you didn't request this, please ignore this email.</p>
+    """
+    html_content = get_email_template(content, "LUMINA", logo_url)
+    return send_email(to_email, "Reset Your Password", html_content)
+
+def send_payment_confirmation_email(to_email: str, user_name: str, order_total: float, courses: list):
+    """Send payment confirmation email"""
+    logo_url = get_email_logo_sync()
+    course_list = "".join([f"<li style='color: #94A3B8; padding: 8px 0;'>{c['title']}</li>" for c in courses])
+    content = f"""
+        <h1 style="color: #10B981;">Payment Successful!</h1>
+        <p>Hi {user_name},</p>
+        <p>Thank you for your purchase! Your payment has been confirmed.</p>
+        <p style="font-size: 32px; font-weight: bold; color: #10B981; text-align: center;">₹{order_total:.2f}</p>
+        <p><strong style="color: #F8FAFC;">Courses Purchased:</strong></p>
+        <ul style="list-style: none; padding: 0;">{course_list}</ul>
+        <p>You can now access your courses from your dashboard. Happy learning!</p>
+    """
+    html_content = get_email_template(content, "LUMINA", logo_url)
+    return send_email(to_email, "Payment Confirmed", html_content)
+
+def send_order_success_email(to_email: str, user_name: str, order: dict, courses: list):
+    """Send order success email with invoice details"""
+    logo_url = get_email_logo_sync()
+    course_rows = ""
+    for course in courses:
+        price = course.get("discount_price") or course.get("price", 0)
+        course_rows += f"""
+        <tr>
+            <td style="padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); color: #F8FAFC;">{course['title']}</td>
+            <td style="padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: right; color: #F8FAFC;">₹{price:.2f}</td>
+        </tr>
+        """
+    
+    content = f"""
+        <h1 style="color: #10B981;">Order Confirmed!</h1>
+        <p style="text-align: center; margin-bottom: 30px;">Thank you for your purchase, {user_name}!</p>
+        
+        <div style="background: rgba(30, 41, 59, 0.8); border-radius: 12px; padding: 20px; margin: 20px 0;">
+            <div style="margin-bottom: 20px;">
+                <p style="margin: 0; color: #64748B; font-size: 14px;">Invoice Number</p>
+                <p style="margin: 5px 0; color: #F8FAFC; font-size: 18px; font-weight: bold;">{order['txn_id']}</p>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <p style="margin: 0; color: #64748B; font-size: 14px;">Order Date</p>
+                <p style="margin: 5px 0; color: #F8FAFC;">{datetime.fromisoformat(order['created_at']).strftime('%B %d, %Y')}</p>
+            </div>
+            
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr>
+                        <th style="text-align: left; padding: 12px; color: #94A3B8; font-weight: 500;">Course</th>
+                        <th style="text-align: right; padding: 12px; color: #94A3B8; font-weight: 500;">Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {course_rows}
+                    <tr style="background: rgba(16, 185, 129, 0.1);">
+                        <td style="padding: 12px; font-weight: bold; color: #10B981;">Total Paid</td>
+                        <td style="padding: 12px; text-align: right; font-size: 20px; font-weight: bold; color: #10B981;">₹{order['total']:.2f}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <p style="text-align: center;">
+            <a href="{os.environ.get('FRONTEND_URL', '')}/my-courses" class="btn">Start Learning</a>
+        </p>
+    """
+    html_content = get_email_template(content, "LUMINA", logo_url)
+    return send_email(to_email, f"Order Confirmed - Invoice #{order['txn_id']}", html_content)
+
+def send_withdrawal_notification_email(to_email: str, user_name: str, amount: float, status: str):
+    """Send withdrawal status notification"""
+    logo_url = get_email_logo_sync()
+    status_color = "#10B981" if status == "approved" else "#EF4444"
+    status_text = "approved and processed" if status == "approved" else "rejected"
+    extra_msg = "The amount will be transferred to your bank account within 3-5 business days." if status == "approved" else "Please contact support if you have any questions."
+    
+    content = f"""
+        <h1 style="color: {status_color};">Withdrawal {status.title()}</h1>
+        <p>Hi {user_name},</p>
+        <p>Your withdrawal request has been {status_text}.</p>
+        <p style="font-size: 32px; font-weight: bold; color: {status_color}; text-align: center;">₹{amount:.2f}</p>
+        <p>{extra_msg}</p>
+    """
+    html_content = get_email_template(content, "LUMINA", logo_url)
+    return send_email(to_email, f"Withdrawal {status.title()}", html_content)
+
+def send_certificate_email(to_email: str, user_name: str, course_title: str, certificate_id: str, verification_url: str):
+    """Send certificate generation notification email"""
+    logo_url = get_email_logo_sync()
+    content = f"""
+        <div style="text-align: center;">
+            <div style="font-size: 60px; margin: 20px 0;">🏆</div>
+            <h1>Congratulations, {user_name}!</h1>
+            <p>You've earned a certificate!</p>
+        </div>
+        
+        <p>We're thrilled to inform you that your certificate has been successfully generated for completing:</p>
+        
+        <div style="background: rgba(139, 92, 246, 0.1); border-radius: 12px; padding: 20px; border-left: 4px solid #8B5CF6; margin: 20px 0;">
+            <div style="color: #8B5CF6; font-size: 18px; font-weight: bold; margin-bottom: 5px;">{course_title}</div>
+            <p style="color: #94A3B8; margin: 0;">Certificate of Completion</p>
+        </div>
+        
+        <p><strong style="color: #F8FAFC;">Certificate ID:</strong></p>
+        <div style="font-family: monospace; background: rgba(139, 92, 246, 0.2); padding: 12px 16px; border-radius: 8px; display: inline-block; margin: 10px 0; color: #00F5FF;">{certificate_id}</div>
+        
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="{verification_url}" class="btn">View Certificate</a>
+        </div>
+    """
+    html_content = get_email_template(content, "LUMINA", logo_url)
+    return send_email(to_email, "Congratulations! Your Certificate is Ready", html_content)
 
 # ======================== R2 STORAGE FUNCTIONS ========================
 
@@ -2579,7 +2556,18 @@ async def send_message(data: MessageCreate, current_user: dict = Depends(get_cur
     }
     await db.messages.insert_one(message)
     
-    return {"message": "Message sent", "message_id": message["id"]}
+    # Emit to WebSocket if recipient is connected
+    sender_info = {
+        "id": current_user["id"],
+        "first_name": current_user.get("first_name", ""),
+        "last_name": current_user.get("last_name", "")
+    }
+    await sio.emit('new_message', {
+        **{k: v for k, v in message.items() if k != "_id"},
+        "sender": sender_info
+    }, room=f"user_{data.recipient_id}")
+    
+    return {"message": "Message sent", "message_id": message["id"], "data": {k: v for k, v in message.items() if k != "_id"}}
 
 # ======================== NOTIFICATION ROUTES ========================
 
@@ -4699,7 +4687,7 @@ async def assign_template_to_course(
     )
     return {"message": "Template assigned to course"}
 
-@app.on_event("startup")
+@fastapi_app.on_event("startup")
 async def startup():
     try:
         init_storage()
@@ -5226,6 +5214,66 @@ async def test_email_settings(test_email: str, current_user: dict = Depends(get_
         return {"message": f"Test email sent to {test_email}"}
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Failed to send email: {str(e)}")
+
+
+@api_router.post("/admin/settings/email/logo")
+async def upload_email_logo(file: UploadFile = File(...), current_user: dict = Depends(get_admin_user)):
+    """Upload email logo image"""
+    if not file.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="Only image files are allowed")
+    
+    # Max 2MB
+    contents = await file.read()
+    if len(contents) > 2 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="File size must be less than 2MB")
+    
+    # Save to static folder or upload to R2
+    import base64
+    file_ext = file.filename.split(".")[-1] if "." in file.filename else "png"
+    
+    # Try R2 upload first
+    r2_settings = await db.settings.find_one({"type": "r2_buckets"})
+    logo_url = None
+    
+    if r2_settings and r2_settings.get("buckets"):
+        try:
+            default_bucket = r2_settings["buckets"][0]
+            r2_cli = get_r2_client_for_bucket(default_bucket)
+            if r2_cli:
+                object_key = f"email-logo-{uuid.uuid4()}.{file_ext}"
+                r2_cli.put_object(
+                    Bucket=default_bucket["bucket_name"],
+                    Key=object_key,
+                    Body=contents,
+                    ContentType=file.content_type
+                )
+                logo_url = f"{default_bucket.get('public_url', '').rstrip('/')}/{object_key}"
+        except Exception as e:
+            logger.error(f"R2 upload failed: {e}")
+    
+    # Fallback to base64 data URL if R2 not available
+    if not logo_url:
+        base64_data = base64.b64encode(contents).decode('utf-8')
+        logo_url = f"data:{file.content_type};base64,{base64_data}"
+    
+    # Save logo URL in email settings
+    await db.settings.update_one(
+        {"type": "email"},
+        {"$set": {"email_logo_url": logo_url, "updated_at": datetime.now(timezone.utc).isoformat()}},
+        upsert=True
+    )
+    
+    return {"message": "Logo uploaded successfully", "logo_url": logo_url}
+
+
+@api_router.delete("/admin/settings/email/logo")
+async def delete_email_logo(current_user: dict = Depends(get_admin_user)):
+    """Remove email logo"""
+    await db.settings.update_one(
+        {"type": "email"},
+        {"$unset": {"email_logo_url": ""}, "$set": {"updated_at": datetime.now(timezone.utc).isoformat()}}
+    )
+    return {"message": "Logo removed successfully"}
 
 
 @api_router.get("/admin/settings/general")
@@ -6032,9 +6080,9 @@ async def mark_message_read(
 
 
 # Include the router in the main app (MUST be after all route definitions)
-app.include_router(api_router)
+fastapi_app.include_router(api_router)
 
-app.add_middleware(
+fastapi_app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
     allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
@@ -6042,6 +6090,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.on_event("shutdown")
+@fastapi_app.on_event("shutdown")
 async def shutdown_db_client():
     client.close()
+
+# Wrap FastAPI app with Socket.IO and export as 'app' for uvicorn
+app = socketio.ASGIApp(sio, fastapi_app)
