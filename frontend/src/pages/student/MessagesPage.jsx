@@ -433,12 +433,12 @@ export default function MessagesPage() {
                                                     {typingUsers[conv.friend?.id] ? (
                                                         <span className="text-green-400">typing...</span>
                                                     ) : (
-                                                        conv.last_message || 'Start a conversation'
+                                                        conv.last_message?.content || conv.last_message || 'Start a conversation'
                                                     )}
                                                 </p>
-                                                {conv.last_message_time && (
+                                                {(conv.last_message_time || conv.last_message?.created_at) && (
                                                     <p className="text-slate-500 text-xs mt-1">
-                                                        {formatTime(conv.last_message_time)}
+                                                        {formatTime(conv.last_message_time || conv.last_message?.created_at)}
                                                     </p>
                                                 )}
                                             </div>
